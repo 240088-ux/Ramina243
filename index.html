@@ -2,43 +2,77 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Мой облачный проект</title>
+<title>Облачная регистрация</title>
 
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
 body{
-font-family:sans-serif;
+height:100vh;
 display:flex;
 justify-content:center;
-padding:50px;
-background:#f4f4f9;
+align-items:center;
+background:linear-gradient(135deg,#667eea,#764ba2);
 }
 
 .form-container{
 background:white;
-padding:25px;
-border-radius:10px;
-box-shadow:0 4px 15px rgba(0,0,0,0.1);
-width:300px;
+padding:35px;
+border-radius:15px;
+width:320px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+h2{
+margin-bottom:20px;
+color:#333;
 }
 
 input{
 width:100%;
-padding:10px;
+padding:12px;
 margin-bottom:15px;
-border:1px solid #ccc;
-border-radius:5px;
+border:1px solid #ddd;
+border-radius:8px;
+font-size:14px;
+transition:0.3s;
+}
+
+input:focus{
+border-color:#667eea;
+outline:none;
+box-shadow:0 0 5px rgba(102,126,234,0.5);
 }
 
 button{
 width:100%;
-padding:10px;
-background:#f4b400;
+padding:12px;
 border:none;
+border-radius:8px;
+background:linear-gradient(135deg,#ffb347,#ffcc33);
 color:white;
+font-size:16px;
 font-weight:bold;
-border-radius:5px;
 cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.05);
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.success{
+margin-top:10px;
+color:green;
+font-size:14px;
 }
 
 </style>
@@ -48,15 +82,17 @@ cursor:pointer;
 
 <div class="form-container">
 
-<h3>Отправить заявку</h3>
+<h2>Регистрация</h2>
 
 <form id="feedbackForm">
 
-<input type="text" id="userName" placeholder="Ваше имя" required>
+<input type="text" id="userName" placeholder="Введите имя" required>
 
-<input type="email" id="userEmail" placeholder="Ваш Email" required>
+<input type="email" id="userEmail" placeholder="Введите Email" required>
 
-<button type="submit">Отправить в облако</button>
+<button type="submit">Отправить</button>
+
+<p class="success" id="message"></p>
 
 </form>
 
@@ -80,30 +116,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+document.getElementById("feedbackForm").addEventListener("submit", async (e)=>{
 
 e.preventDefault();
 
-const nameInput = document.getElementById("userName").value;
-const emailInput = document.getElementById("userEmail").value;
+const nameInput=document.getElementById("userName").value;
+const emailInput=document.getElementById("userEmail").value;
 
 try{
 
 await addDoc(collection(db,"requests"),{
-
 name:nameInput,
 email:emailInput,
 timestamp:new Date()
-
 });
 
-alert("Данные отправлены в Firebase");
-
+document.getElementById("message").innerText="Данные успешно отправлены!";
 document.getElementById("feedbackForm").reset();
 
 }catch(error){
 
-alert("Ошибка отправки");
+document.getElementById("message").innerText="Ошибка отправки";
 
 }
 
