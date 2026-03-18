@@ -1,148 +1,191 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Облачная регистрация</title>
+    <meta charset="UTF-8">
+    <title>Облачная регистрация</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-<style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Изменено, чтобы лента была под формой */
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 20px;
+        }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial, Helvetica, sans-serif;
-}
+        .form-container {
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            width: 320px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-body{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:linear-gradient(135deg,#667eea,#764ba2);
-}
+        h2 { margin-bottom: 20px; color: #333; }
 
-.form-container{
-background:white;
-padding:35px;
-border-radius:15px;
-width:320px;
-box-shadow:0 10px 25px rgba(0,0,0,0.2);
-text-align:center;
-}
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.3s;
+        }
 
-h2{
-margin-bottom:20px;
-color:#333;
-}
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 5px rgba(102,126,234,0.5);
+        }
 
-input{
-width:100%;
-padding:12px;
-margin-bottom:15px;
-border:1px solid #ddd;
-border-radius:8px;
-font-size:14px;
-transition:0.3s;
-}
+        button#submitBtn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ffb347, #ffcc33);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-input:focus{
-border-color:#667eea;
-outline:none;
-box-shadow:0 0 5px rgba(102,126,234,0.5);
-}
+        button#submitBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
 
-button{
-width:100%;
-padding:12px;
-border:none;
-border-radius:8px;
-background:linear-gradient(135deg,#ffb347,#ffcc33);
-color:white;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-transition:0.3s;
-}
+        /* Стили для ленты сообщений (из задания) */
+        #feed {
+            width: 100%;
+            max-width: 400px;
+        }
 
-button:hover{
-transform:scale(1.05);
-box-shadow:0 5px 15px rgba(0,0,0,0.2);
-}
+        .post {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
 
-.success{
-margin-top:10px;
-color:green;
-font-size:14px;
-}
+        .time { font-size: 10px; color: #888; float: right; }
+        
+        .like-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-</style>
+        .like-btn:hover { background: #e0e0e0; }
+
+        .success { margin-top: 10px; color: green; font-size: 14px; }
+    </style>
 </head>
-
 <body>
 
-<div class="form-container">
+    <div class="form-container">
+        <h2>Регистрация</h2>
+        <form id="feedbackForm">
+            <input type="text" id="userName" placeholder="Введите имя" required>
+            <input type="email" id="userEmail" placeholder="Введите Email" required>
+            <button type="submit" id="submitBtn">Отправить</button>
+            <p class="success" id="message"></p>
+        </form>
+    </div>
 
-<h2>Регистрация</h2>
+    <div id="feed"></div>
 
-<form id="feedbackForm">
+    <script type="module">
+        // Импортируем ВСЕ необходимые методы из задания
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { 
+            getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
+            serverTimestamp, updateDoc, doc, increment 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-<input type="text" id="userName" placeholder="Введите имя" required>
+        // Твои настройки Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
+            authDomain: "ramina243.firebaseapp.com",
+            projectId: "ramina243",
+            storageBucket: "ramina243.firebasestorage.app",
+            messagingSenderId: "923144008758",
+            appId: "1:923144008758:web:34347eba64da8be4369497",
+            measurementId: "G-316VTH9LFZ"
+        };
 
-<input type="email" id="userEmail" placeholder="Введите Email" required>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-<button type="submit">Отправить</button>
+        // Функция для лайков (атомарное обновление)
+        window.processLike = async (id) => {
+            const docRef = doc(db, "requests", id);
+            try {
+                await updateDoc(docRef, { likes: increment(1) });
+            } catch (e) {
+                console.error("Ошибка безопасности:", e.message);
+            }
+        };
 
-<p class="success" id="message"></p>
+        // Отправка формы (Метод: Запись с валидацией)
+        document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("submitBtn");
+            const nameInput = document.getElementById("userName").value;
+            const emailInput = document.getElementById("userEmail").value;
 
-</form>
+            btn.disabled = true;
+            try {
+                await addDoc(collection(db, "requests"), {
+                    name: nameInput,
+                    email: emailInput,
+                    likes: 0,
+                    timestamp: serverTimestamp() // Используем серверное время
+                });
+                document.getElementById("message").innerText = "Данные успешно отправлены!";
+                document.getElementById("feedbackForm").reset();
+            } catch (error) {
+                alert("Ошибка безопасности: Данные отклонены сервером.");
+            }
+            btn.disabled = false;
+        });
 
-</div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
-  authDomain: "ramina243.firebaseapp.com",
-  projectId: "ramina243",
-  storageBucket: "ramina243.firebasestorage.app",
-  messagingSenderId: "923144008758",
-  appId: "1:923144008758:web:34347eba64da8be4369497",
-  measurementId: "G-316VTH9LFZ"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-document.getElementById("feedbackForm").addEventListener("submit", async (e)=>{
-
-e.preventDefault();
-
-const nameInput=document.getElementById("userName").value;
-const emailInput=document.getElementById("userEmail").value;
-
-try{
-
-await addDoc(collection(db,"requests"),{
-name:nameInput,
-email:emailInput,
-timestamp:new Date()
-});
-
-document.getElementById("message").innerText="Данные успешно отправлены!";
-document.getElementById("feedbackForm").reset();
-
-}catch(error){
-
-document.getElementById("message").innerText="Ошибка отправки";
-
-}
-
-});
-
-</script>
-
+        // Real-time синхронизация с сортировкой (Метод: onSnapshot)
+        const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const feed = document.getElementById("feed");
+            feed.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                feed.innerHTML += `
+                    <div class="post">
+                        <span class="time">${data.timestamp?.toDate().toLocaleTimeString() || '...'}</span>
+                        <strong>${data.name}</strong>
+                        <p style="font-size: 13px; color: #555;">${data.email}</p>
+                        <button class="like-btn" onclick="processLike('${doc.id}')">
+                            👍 ${data.likes || 0}
+                        </button>
+                    </div>`;
+            });
+        });
+    </script>
 </body>
 </html>
