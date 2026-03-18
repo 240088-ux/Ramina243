@@ -14,7 +14,7 @@
         body {
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* Изменено, чтобы лента была под формой */
+            flex-direction: column; 
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -67,7 +67,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        /* Стили для ленты сообщений (из задания) */
         #feed {
             width: 100%;
             max-width: 400px;
@@ -114,14 +113,12 @@
     <div id="feed"></div>
 
     <script type="module">
-        // Импортируем ВСЕ необходимые методы из задания
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { 
             getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
             serverTimestamp, updateDoc, doc, increment 
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        // Твои настройки Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
             authDomain: "ramina243.firebaseapp.com",
@@ -134,8 +131,10 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        
+        // ЭТА СТРОКА ПОЗВОЛЯЕТ ТЕСТИРОВАТЬ ВЗЛОМ В КОНСОЛИ F12
+        window.db = db; 
 
-        // Функция для лайков (атомарное обновление)
         window.processLike = async (id) => {
             const docRef = doc(db, "requests", id);
             try {
@@ -145,7 +144,6 @@
             }
         };
 
-        // Отправка формы (Метод: Запись с валидацией)
         document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("submitBtn");
@@ -158,7 +156,7 @@
                     name: nameInput,
                     email: emailInput,
                     likes: 0,
-                    timestamp: serverTimestamp() // Используем серверное время
+                    timestamp: serverTimestamp()
                 });
                 document.getElementById("message").innerText = "Данные успешно отправлены!";
                 document.getElementById("feedbackForm").reset();
@@ -168,7 +166,6 @@
             btn.disabled = false;
         });
 
-        // Real-time синхронизация с сортировкой (Метод: onSnapshot)
         const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
         onSnapshot(q, (snapshot) => {
             const feed = document.getElementById("feed");
