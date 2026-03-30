@@ -2,59 +2,54 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Cloud Pink | Ultra Edition</title>
+    <title>Cloud Registration | Comments Edition</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #fff0f5; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        
-        .header-auth { width: 100%; max-width: 500px; display: flex; justify-content: flex-end; margin-bottom: 20px; }
-        .btn-google { padding: 10px 20px; border: 2px solid #f06292; background: white; color: #f06292; border-radius: 50px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-google:hover { background: #fce4ec; }
-
-        .glass-container { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); 
-            padding: 30px; border-radius: 25px; width: 100%; max-width: 450px; 
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); border: 1px solid white; text-align: center;
-        }
-
-        h2 { color: #ec407a; margin-bottom: 20px; font-weight: 300; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #f8bbd0; border-radius: 12px; outline: none; }
-        
-        .btn-send { width: 100%; padding: 15px; border: none; border-radius: 12px; background: #f06292; color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn-send:hover { background: #d81b60; }
-
-        #feed { width: 100%; max-width: 500px; margin-top: 30px; }
-        .post { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
-        .post img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fce4ec; }
-        .post-content { flex-grow: 1; }
-        .post-name { font-weight: bold; color: #ec407a; font-size: 14px; }
-        .post-text { font-size: 13px; color: #666; margin-top: 3px; }
+        /* Оставляю твои стили и добавляю немного для комментария */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #fce4ec, #fff1f1); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; color: #5d4037; }
+        .form-container { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); padding: 35px; border-radius: 25px; width: 100%; max-width: 400px; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); text-align: center; margin-bottom: 20px; }
+        h2 { margin-bottom: 25px; color: #ec407a; font-weight: 300; letter-spacing: 1px; }
+        input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid rgba(255, 182, 193, 0.3); border-radius: 12px; font-size: 14px; background: rgba(255, 255, 255, 0.9); transition: 0.3s; }
+        input:focus { border-color: #f06292; outline: none; }
+        button#submitBtn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(45deg, #ff80ab, #f06292); color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button#submitBtn:hover { transform: scale(1.03); box-shadow: 0 5px 15px rgba(240, 98, 146, 0.4); }
+        .search-container { width: 100%; max-width: 450px; margin: 20px 0; }
+        .search-input { width: 100%; padding: 12px 20px; border-radius: 50px; border: 2px solid rgba(255, 182, 193, 0.5); outline: none; }
+        #feed { width: 100%; max-width: 450px; }
+        .post { background: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; box-shadow: 0 5px 15px rgba(255, 182, 193, 0.2); display: flex; align-items: flex-start; gap: 15px; animation: slideIn 0.4s ease; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #f8bbd0; color: white; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; flex-shrink: 0; }
+        .post-info { flex-grow: 1; }
+        .post-name { font-weight: bold; color: #ec407a; }
+        .post-comment { margin: 8px 0; font-size: 14px; color: #5d4037; line-height: 1.4; background: #fff9fb; padding: 8px; border-radius: 8px; }
+        .like-btn { padding: 6px 12px; border: none; border-radius: 10px; background: #fff1f1; color: #f06292; cursor: pointer; font-size: 13px; font-weight: bold; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="header-auth">
-        <div id="userProfile" style="display:none; align-items:center; gap:10px; background:white; padding:5px 15px; border-radius:50px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
-            <img id="myAvatar" src="" style="width:30px; border-radius:50%;">
-            <span id="myName" style="font-size:12px; font-weight:bold;"></span>
-            <button onclick="location.reload()" style="border:none; background:none; color:red; cursor:pointer; font-size:10px;">Выйти</button>
-        </div>
-        <button class="btn-google" id="loginBtn">Войти через Google</button>
+    <div class="form-container">
+        <h2>Оставить отзыв</h2>
+        <form id="feedbackForm">
+            <input type="text" id="userName" placeholder="Ваше имя" required>
+            <input type="email" id="userEmail" placeholder="Ваш Email" required>
+            <input type="text" id="userComment" placeholder="Ваш комментарий..." required>
+            <button type="submit" id="submitBtn">Опубликовать</button>
+            <p id="message" style="margin-top:10px; font-size:12px; color: #ec407a;"></p>
+        </form>
     </div>
 
-    <div class="glass-container">
-        <h2>Подписаться на Облако</h2>
-        <input type="text" id="msgInput" placeholder="Введите ваше сообщение или статус">
-        <button class="btn-send" id="sendBtn">Подписаться</button>
-        <p id="status" style="font-size:12px; margin-top:10px; color:#ec407a;"></p>
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Найти отзыв по имени...">
     </div>
 
     <div id="feed"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { 
+            getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
+            serverTimestamp, updateDoc, doc, increment 
+        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
@@ -67,63 +62,87 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
 
-        let currentUser = null;
+        let currentSearchTerm = "";
 
-        // Вход через Redirect (самый надежный)
-        document.getElementById('loginBtn').onclick = () => signInWithRedirect(auth, provider);
-
-        // Обработка входа
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('userProfile').style.display = 'flex';
-                document.getElementById('myAvatar').src = user.photoURL;
-                document.getElementById('myName').innerText = user.displayName;
+        // 1. ФУНКЦИЯ ЗАПИСИ (Теперь сохраняет комментарий)
+        async function createNewPost(name, email, comment) {
+            try {
+                await addDoc(collection(db, "requests"), {
+                    name: name,
+                    email: email,
+                    comment: comment, // Поле комментария для Firebase
+                    likes: 0,
+                    timestamp: serverTimestamp()
+                });
+                return true;
+            } catch (e) {
+                console.error("Ошибка:", e);
+                return false;
             }
+        }
+
+        // 2. ФУНКЦИЯ ЧТЕНИЯ
+        function loadRequests() {
+            const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const feed = document.getElementById("feed");
+                feed.innerHTML = "";
+                
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (data.name.toLowerCase().includes(currentSearchTerm.toLowerCase())) {
+                        const initials = data.name.substring(0, 2).toUpperCase();
+                        
+                        feed.innerHTML += `
+                            <div class="post">
+                                <div class="avatar">${initials}</div>
+                                <div class="post-info">
+                                    <div style="display:flex; justify-content:space-between">
+                                        <span class="post-name">${data.name}</span>
+                                        <span style="font-size:10px; color:#ccc;">${data.timestamp?.toDate().toLocaleTimeString() || ''}</span>
+                                    </div>
+                                    <div class="post-comment">${data.comment || "Без комментария"}</div>
+                                    <button class="like-btn" onclick="addLikeToPost('${docSnap.id}')">
+                                        💖 ${data.likes || 0}
+                                    </button>
+                                </div>
+                            </div>`;
+                    }
+                });
+            });
+        }
+
+        // Слушатель поиска
+        document.getElementById("searchInput").addEventListener("input", (e) => {
+            currentSearchTerm = e.target.value;
+            loadRequests();
         });
 
-        // Отправка (Подписка)
-        document.getElementById('sendBtn').onclick = async () => {
-            if (!currentUser) {
-                alert("Сначала войдите через Google!");
-                return;
+        // Логика формы
+        document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("submitBtn");
+            const name = document.getElementById("userName").value;
+            const email = document.getElementById("userEmail").value;
+            const comment = document.getElementById("userComment").value;
+            
+            btn.innerText = "Публикуем...";
+            const success = await createNewPost(name, email, comment);
+            if (success) {
+                document.getElementById("feedbackForm").reset();
+                document.getElementById("message").innerText = "Ваш отзыв добавлен! ✨";
+                setTimeout(() => { document.getElementById("message").innerText = ""; }, 3000);
             }
-            const text = document.getElementById('msgInput').value;
-            if (!text) return;
+            btn.innerText = "Опубликовать";
+        });
 
-            await addDoc(collection(db, "requests"), {
-                name: currentUser.displayName,
-                email: currentUser.email,
-                photo: currentUser.photoURL,
-                message: text,
-                timestamp: serverTimestamp()
-            });
-            document.getElementById('msgInput').value = "";
-            document.getElementById('status').innerText = "Вы успешно подписаны! ✨";
+        window.addLikeToPost = async (id) => {
+            const docRef = doc(db, "requests", id);
+            await updateDoc(docRef, { likes: increment(1) });
         };
 
-        // Лента в реальном времени
-        const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snap) => {
-            const feed = document.getElementById('feed');
-            feed.innerHTML = "";
-            snap.forEach(doc => {
-                const data = doc.data();
-                feed.innerHTML += `
-                    <div class="post">
-                        <img src="${data.photo || 'https://via.placeholder.com/40'}">
-                        <div class="post-content">
-                            <div class="post-name">${data.name}</div>
-                            <div class="post-text">${data.message}</div>
-                        </div>
-                        <div style="font-size:10px; color:#ccc;">${data.timestamp?.toDate().toLocaleTimeString() || ''}</div>
-                    </div>`;
-            });
-        });
+        loadRequests();
     </script>
 </body>
 </html>
