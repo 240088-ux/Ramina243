@@ -2,51 +2,91 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Cloud Pro — Firebase & GitHub</title>
+    <title>Cloud Registration | Pink Edition</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: linear-gradient(135deg, #1e3c72, #2a5298); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; color: #333; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
-        .container { background: #fff; padding: 30px; border-radius: 20px; width: 100%; max-width: 450px; shadow: 0 15px 35px rgba(0,0,0,0.3); }
-        h2 { text-align: center; margin-bottom: 20px; color: #1e3c72; }
-        
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 2px solid #eee; border-radius: 10px; outline: none; transition: 0.3s; }
-        input:focus { border-color: #2a5298; }
-        
-        .btn-send { width: 100%; padding: 15px; background: #2a5298; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-        
-        .search-box { margin-bottom: 20px; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px; width: 100%; max-width: 450px; }
-        .search-box input { margin-bottom: 0; background: white; }
+        body { 
+            /* Нежный градиентный фон */
+            background: linear-gradient(135deg, #fce4ec, #fff1f1); 
+            min-height: 100vh; display: flex; flex-direction: column; 
+            align-items: center; padding: 40px 20px; color: #5d4037; 
+        }
+
+        .form-container { 
+            /* Эффект Glassmorphism (Матовое стекло) */
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(10px); 
+            padding: 35px; border-radius: 25px; 
+            width: 100%; max-width: 400px; 
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); 
+            text-align: center; margin-bottom: 30px; 
+        }
+
+        h2 { margin-bottom: 25px; color: #ec407a; font-weight: 300; letter-spacing: 1px; }
+
+        input { 
+            width: 100%; padding: 14px; margin-bottom: 18px; 
+            border: 2px solid rgba(255, 182, 193, 0.3); 
+            border-radius: 12px; font-size: 14px; 
+            background: rgba(255, 255, 255, 0.9); transition: 0.3s; 
+        }
+
+        input:focus { border-color: #f06292; outline: none; }
+
+        button#submitBtn { 
+            width: 100%; padding: 15px; border: none; border-radius: 12px; 
+            background: linear-gradient(45deg, #ff80ab, #f06292); 
+            color: white; font-size: 16px; font-weight: bold; cursor: pointer; 
+            transition: 0.3s transform ease, 0.3s box-shadow ease; 
+        }
+
+        /* Анимация при наведении */
+        button#submitBtn:hover { transform: scale(1.03); box-shadow: 0 5px 15px rgba(240, 98, 146, 0.4); }
 
         #feed { width: 100%; max-width: 450px; }
-        .post { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; position: relative; animation: slideIn 0.4s ease; }
+
+        /* Стиль карточек (постов) */
+        .post { 
+            background: white; padding: 20px; border-radius: 18px; 
+            margin-bottom: 18px; box-shadow: 0 5px 15px rgba(255, 182, 193, 0.2); 
+            display: flex; align-items: center; gap: 15px; animation: slideIn 0.4s ease; 
+        }
+        
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .avatar { 
+            width: 50px; height: 50px; border-radius: 50%; 
+            background: #f8bbd0; color: white; display: flex; 
+            justify-content: center; align-items: center; font-size: 20px; font-weight: bold; 
+        }
+
+        .post-info { flex-grow: 1; }
+        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .post-name { font-weight: bold; color: #ec407a; }
+        .post-time { font-size: 11px; color: #bbb; }
         
-        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .post-name { font-weight: bold; color: #1e3c72; font-size: 18px; }
-        .post-time { font-size: 11px; color: #999; }
-        
-        .actions { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-action { padding: 8px 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.2s; }
-        .like-btn { background: #ffebee; color: #e91e63; }
-        .like-btn:hover { background: #f8bbd0; }
-        .del-btn { background: #f5f5f5; color: #757575; }
-        .del-btn:hover { background: #ffcdd2; color: #d32f2f; }
+        .like-btn { 
+            margin-top: 10px; padding: 6px 12px; border: none; 
+            border-radius: 10px; background: #fff1f1; color: #f06292; 
+            cursor: pointer; font-size: 13px; font-weight: bold; 
+        }
+        .like-btn:hover { background: #fce4ec; }
+
+        #message { margin-top: 15px; color: #ec407a; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>Новая Заявка</h2>
-        <form id="mainForm">
-            <input type="text" id="uName" placeholder="Имя пользователя" required>
-            <input type="email" id="uEmail" placeholder="Email адрес" required>
-            <button type="submit" class="btn-send">Опубликовать в Облаке</button>
+    <div class="form-container">
+        <h2>Регистрация в Облаке</h2>
+        <form id="feedbackForm">
+            <input type="text" id="userName" placeholder="Как вас зовут?" required>
+            <input type="email" id="userEmail" placeholder="Ваш Email" required>
+            <button type="submit" id="submitBtn">Подписаться</button>
+            <p id="message"></p>
         </form>
-    </div>
-
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 Быстрый поиск по имени...">
     </div>
 
     <div id="feed"></div>
@@ -55,9 +95,10 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { 
             getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
-            serverTimestamp, updateDoc, doc, increment, deleteDoc 
+            serverTimestamp, updateDoc, doc, increment 
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+        // ТВОИ КЛЮЧИ СО СКРИНШОТА (ramina243)
         const firebaseConfig = {
             apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
             authDomain: "ramina243.firebaseapp.com",
@@ -70,72 +111,78 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- ФУНКЦИИ ДЛЯ ОТЧЕТА ---
+        // --- ДВЕ ФУНКЦИИ ДЛЯ ОТЧЕТА ---
 
-        // 1. Создание записи
-        window.sendPost = async (name, email) => {
-            await addDoc(collection(db, "requests"), {
-                name, email, likes: 0, timestamp: serverTimestamp()
-            });
-        };
-
-        // 2. Лайк (Обновление)
-        window.handleLike = async (id) => {
-            const ref = doc(db, "requests", id);
-            await updateDoc(ref, { likes: increment(1) });
-        };
-
-        // 3. Удаление
-        window.handleDelete = async (id) => {
-            if(confirm("Удалить эту запись из облака?")) {
-                await deleteDoc(doc(db, "requests", id));
+        // 1. ФУНКЦИЯ ЗАПИСИ (Create)
+        async function createNewPost(name, email) {
+            try {
+                await addDoc(collection(db, "requests"), {
+                    name: name,
+                    email: email,
+                    likes: 0,
+                    timestamp: serverTimestamp()
+                });
+                return true;
+            } catch (e) {
+                console.error("Ошибка записи:", e);
+                return false;
             }
-        };
+        }
 
-        // --- ОТОБРАЖЕНИЕ И ПОИСК ---
-        const feed = document.getElementById("feed");
-        const searchInput = document.getElementById("searchInput");
-
-        function renderFeed(filter = "") {
+        // 2. ФУНКЦИЯ ЧТЕНИЯ (Read - Realtime)
+        function loadRequests() {
             const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
             onSnapshot(q, (snapshot) => {
+                const feed = document.getElementById("feed");
                 feed.innerHTML = "";
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    if (!data.name.toLowerCase().includes(filter.toLowerCase())) return;
-
-                    const time = data.timestamp?.toDate().toLocaleString() || "Загрузка...";
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const initials = data.name.substring(0, 2).toUpperCase();
+                    const time = data.timestamp?.toDate().toLocaleTimeString() || "...";
+                    
                     feed.innerHTML += `
                         <div class="post">
-                            <div class="post-header">
-                                <span class="post-name">${data.name}</span>
-                                <span class="post-time">${time}</span>
+                            <div class="avatar">${initials}</div>
+                            <div class="post-info">
+                                <div class="post-header">
+                                    <span class="post-name">${data.name}</span>
+                                    <span class="post-time">${time}</span>
+                                </div>
+                                <p style="font-size: 13px; color: #888;">${data.email}</p>
+                                <button class="like-btn" onclick="addLikeToPost('${docSnap.id}')">
+                                    💖 ${data.likes || 0}
+                                </button>
                             </div>
-                            <p style="color: #666; font-size: 14px;">${data.email}</p>
-                            <div class="actions">
-                                <button class="btn-action like-btn" onclick="handleLike('${doc.id}')">❤️ ${data.likes || 0}</button>
-                                <button class="btn-action del-btn" onclick="handleDelete('${doc.id}')">🗑 Удалить</button>
-                            </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
             });
         }
 
-        // Слушатель формы
-        document.getElementById("mainForm").addEventListener("submit", async (e) => {
+        // --- ЛОГИКА ---
+
+        document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const name = document.getElementById("uName").value;
-            const email = document.getElementById("uEmail").value;
-            await sendPost(name, email);
-            e.target.reset();
+            const btn = document.getElementById("submitBtn");
+            const name = document.getElementById("userName").value;
+            const email = document.getElementById("userEmail").value;
+            
+            btn.innerText = "Загрузка...";
+            const success = await createNewPost(name, email);
+            if (success) {
+                document.getElementById("feedbackForm").reset();
+                document.getElementById("message").innerText = "Готово! Данные сохранены в Firebase.";
+            }
+            btn.innerText = "Подписаться";
         });
 
-        // Слушатель поиска
-        searchInput.addEventListener("input", (e) => renderFeed(e.target.value));
+        window.addLikeToPost = async (id) => {
+            const docRef = doc(db, "requests", id);
+            await updateDoc(docRef, { likes: increment(1) });
+        };
 
         // Старт
-        renderFeed();
+        loadRequests();
+
     </script>
 </body>
 </html>
