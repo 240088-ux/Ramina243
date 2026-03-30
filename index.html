@@ -2,218 +2,223 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Cloud Registration | Pink Edition</title>
+<title>Instagram ULTRA</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
+body{margin:0;font-family:sans-serif;background:#fafafa;}
+.dark{background:#121212;color:white;}
 
-body{
-background:linear-gradient(135deg,#fce4ec,#fff1f1);
-min-height:100vh;
+.header{
 display:flex;
-flex-direction:column;
-align-items:center;
-padding:40px;
-}
-
-.form-container{
+justify-content:space-between;
+padding:10px;
 background:white;
-padding:30px;
-border-radius:20px;
-width:400px;
+position:sticky;
+top:0;
+}
+
+.story-bar{
+display:flex;
+overflow-x:auto;
+padding:10px;
+gap:10px;
+}
+
+.story{
 text-align:center;
-margin-bottom:20px;
+font-size:12px;
 }
 
-input{
-width:100%;
-padding:12px;
-margin-bottom:15px;
-border-radius:10px;
-border:1px solid #ddd;
-}
-
-button{
-padding:12px;
-width:100%;
-border:none;
-border-radius:10px;
-background:#f06292;
-color:white;
-cursor:pointer;
-}
-
-.search-input{
-width:400px;
-padding:12px;
-border-radius:50px;
-margin-bottom:20px;
-border:2px solid pink;
+.story img{
+width:60px;
+height:60px;
+border-radius:50%;
+border:3px solid pink;
 }
 
 .post{
-background:white;
-padding:15px;
-margin-bottom:10px;
-border-radius:15px;
 width:400px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+margin:20px auto;
+background:white;
+padding:10px;
+border-radius:10px;
 }
 
-.like-btn{
-background:#ffe4ec;
-border:none;
-padding:5px 10px;
+.post img{
+width:100%;
 border-radius:10px;
-cursor:pointer;
 }
+
+.avatar{width:40px;height:40px;border-radius:50%;}
 </style>
 </head>
 
 <body>
 
-<div class="form-container">
-<h2>Регистрация</h2>
-
-<form id="feedbackForm">
-<input type="text" id="userName" placeholder="Имя" required>
-<input type="email" id="userEmail" placeholder="Email" required>
-<button type="submit">Отправить</button>
-<p id="message"></p>
-</form>
-
-<p id="onlineCount">Онлайн: 0</p>
+<div class="header">
+<div>Instagram ULTRA</div>
+<div>
+<button id="loginBtn">Login</button>
+<button id="logoutBtn">Logout</button>
+<button id="themeBtn">🌙</button>
+</div>
 </div>
 
-<input type="text" id="searchInput" class="search-input" placeholder="Поиск...">
+<div class="story-bar" id="stories"></div>
+
+<div style="text-align:center;margin:10px;">
+<input type="file" id="fileInput">
+<button id="uploadBtn">Загрузить пост</button>
+</div>
 
 <div id="feed"></div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+
 import {
-getFirestore, collection, addDoc, query, orderBy, onSnapshot,
-serverTimestamp, updateDoc, doc, increment, setDoc
+getFirestore, collection, addDoc, query, orderBy,
+onSnapshot, serverTimestamp, doc, updateDoc, increment
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+import {
+getAuth, signInWithPopup, GoogleAuthProvider,
+onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+import {
+getStorage, ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
+
+// CONFIG
 const firebaseConfig = {
 apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
 authDomain: "ramina243.firebaseapp.com",
 projectId: "ramina243",
-storageBucket: "ramina243.firebasestorage.app",
-messagingSenderId: "923144008758",
-appId: "1:923144008758:web:34347eba64da8be4369497"
+storageBucket: "ramina243.appspot.com"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
 
-let currentSearchTerm = "";
-let firstLoad = true;
+let user = null;
 
-// ====== 1. ЗАПИСЬ ======
-async function createNewPost(name, email){
-await addDoc(collection(db,"requests"),{
-name,
-email,
+// LOGIN
+loginBtn.onclick = async ()=>{
+const provider = new GoogleAuthProvider();
+await signInWithPopup(auth, provider);
+};
+
+logoutBtn.onclick = ()=>signOut(auth);
+
+onAuthStateChanged(auth,(u)=>{user=u});
+
+// ===== UPLOAD POST =====
+uploadBtn.onclick = async ()=>{
+if(!user) return alert("Войди!");
+
+const file = fileInput.files[0];
+const storageRef = ref(storage,"posts/"+file.name);
+
+await uploadBytes(storageRef,file);
+const url = await getDownloadURL(storageRef);
+
+await addDoc(collection(db,"posts"),{
+name:user.displayName,
+avatar:user.photoURL,
+image:url,
 likes:0,
 timestamp:serverTimestamp()
 });
-}
+};
 
-// ====== 2. ЧТЕНИЕ ======
-function loadRequests(){
-const q = query(collection(db,"requests"),orderBy("timestamp","desc"));
+// ===== LOAD POSTS =====
+function loadPosts(){
+const q = query(collection(db,"posts"),orderBy("timestamp","desc"));
 
-onSnapshot(q,(snapshot)=>{
-const feed = document.getElementById("feed");
+onSnapshot(q,(snap)=>{
 feed.innerHTML="";
 
-if(!firstLoad){
-showNotification("🔥 Новый пользователь!");
-}
-firstLoad=false;
+snap.forEach(docSnap=>{
+const d = docSnap.data();
 
-snapshot.forEach((docSnap)=>{
-const data = docSnap.data();
-
-if(data.name.toLowerCase().includes(currentSearchTerm.toLowerCase())){
 feed.innerHTML += `
 <div class="post">
 <div>
-<b>${data.name}</b><br>
-<small>${data.email}</small>
+<img src="${d.avatar}" class="avatar"> ${d.name}
 </div>
-<button class="like-btn" onclick="addLikeToPost('${docSnap.id}',this)">
-💖 ${data.likes || 0}
-</button>
+
+<img src="${d.image}">
+
+<button onclick="like('${docSnap.id}',this)">❤️ ${d.likes||0}</button>
+</div>`;
+});
+});
+}
+
+// LIKE
+window.like = async(id,btn)=>{
+btn.style.transform="scale(1.2)";
+setTimeout(()=>btn.style.transform="scale(1)",200);
+
+await updateDoc(doc(db,"posts",id),{likes:increment(1)});
+};
+
+// ===== STORIES =====
+async function addStory(url){
+await addDoc(collection(db,"stories"),{
+user:user.displayName,
+avatar:user.photoURL,
+image:url,
+time:Date.now()
+});
+}
+
+function loadStories(){
+const q = query(collection(db,"stories"));
+
+onSnapshot(q,(snap)=>{
+stories.innerHTML="";
+
+snap.forEach(docSnap=>{
+const d = docSnap.data();
+
+// удаление через 24 часа
+if(Date.now() - d.time < 86400000){
+stories.innerHTML += `
+<div class="story">
+<img src="${d.avatar}">
+<div>${d.user}</div>
 </div>`;
 }
 });
 });
 }
 
-// ====== ПОИСК ======
-document.getElementById("searchInput").addEventListener("input",(e)=>{
-currentSearchTerm = e.target.value;
-loadRequests();
+// загрузка сторис (двойной клик)
+document.body.addEventListener("dblclick", async ()=>{
+if(!user) return;
+
+const file = fileInput.files[0];
+if(!file) return;
+
+const storageRef = ref(storage,"stories/"+file.name);
+
+await uploadBytes(storageRef,file);
+const url = await getDownloadURL(storageRef);
+
+addStory(url);
 });
 
-// ====== ФОРМА ======
-document.getElementById("feedbackForm").addEventListener("submit",async(e)=>{
-e.preventDefault();
+// THEME
+themeBtn.onclick = ()=>document.body.classList.toggle("dark");
 
-const name = document.getElementById("userName").value;
-const email = document.getElementById("userEmail").value;
-
-await createNewPost(name,email);
-
-document.getElementById("feedbackForm").reset();
-showNotification("✅ Сохранено!");
-});
-
-// ====== ЛАЙК ======
-window.addLikeToPost = async(id,btn)=>{
-btn.style.transform="scale(1.3)";
-setTimeout(()=>btn.style.transform="scale(1)",200);
-
-const ref = doc(db,"requests",id);
-await updateDoc(ref,{likes:increment(1)});
-};
-
-// ====== УВЕДОМЛЕНИЕ ======
-function showNotification(text){
-const msg = document.getElementById("message");
-msg.innerText = text;
-setTimeout(()=>msg.innerText="",3000);
-}
-
-// ====== ОНЛАЙН ======
-const userId = Date.now().toString();
-
-async function setUserOnline(){
-await setDoc(doc(db,"onlineUsers",userId),{
-active:true,
-lastSeen:serverTimestamp()
-});
-}
-
-function trackOnline(){
-const q = query(collection(db,"onlineUsers"));
-onSnapshot(q,(snapshot)=>{
-document.getElementById("onlineCount").innerText =
-"Онлайн: " + snapshot.size;
-});
-}
-
-setUserOnline();
-trackOnline();
-
-// ====== СТАРТ ======
-loadRequests();
+// START
+loadPosts();
+loadStories();
 
 </script>
 
