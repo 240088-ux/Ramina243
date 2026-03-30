@@ -2,100 +2,39 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Облачная регистрация</title>
+    <title>Облачная регистрация — Финальная версия</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            min-height: 100vh; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; 
+            background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; 
         }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column; 
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            padding: 20px;
+        .form-container { 
+            background: white; padding: 30px; border-radius: 15px; 
+            width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            text-align: center; margin-bottom: 20px; 
         }
-
-        .form-container {
-            background: white;
-            padding: 35px;
-            border-radius: 15px;
-            width: 320px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
         h2 { margin-bottom: 20px; color: #333; }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: 0.3s;
+        input { 
+            width: 100%; padding: 12px; margin-bottom: 15px; 
+            border: 1px solid #ddd; border-radius: 8px; font-size: 14px; 
         }
-
-        input:focus {
-            border-color: #667eea;
-            outline: none;
-            box-shadow: 0 0 5px rgba(102,126,234,0.5);
+        button#submitBtn { 
+            width: 100%; padding: 12px; border: none; border-radius: 8px; 
+            background: linear-gradient(135deg, #ffb347, #ffcc33); 
+            color: white; font-size: 16px; font-weight: bold; cursor: pointer; 
         }
-
-        button#submitBtn {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #ffb347, #ffcc33);
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
+        #feed { width: 100%; max-width: 400px; }
+        .post { 
+            background: white; padding: 15px; border-radius: 10px; 
+            margin-top: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
         }
-
-        button#submitBtn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        #feed {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .post {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            position: relative;
-        }
-
         .time { font-size: 10px; color: #888; float: right; }
-        
-        .like-btn {
-            margin-top: 10px;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            background: #f0f0f0;
-            cursor: pointer;
-            transition: 0.2s;
+        .like-btn { 
+            margin-top: 10px; padding: 5px 10px; border: none; 
+            border-radius: 5px; background: #f0f0f0; cursor: pointer; 
         }
-
-        .like-btn:hover { background: #e0e0e0; }
-
-        .success { margin-top: 10px; color: green; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -105,8 +44,7 @@
         <form id="feedbackForm">
             <input type="text" id="userName" placeholder="Введите имя" required>
             <input type="email" id="userEmail" placeholder="Введите Email" required>
-            <button type="submit" id="submitBtn">Отправить</button>
-            <p class="success" id="message"></p>
+            <button type="submit" id="submitBtn">Отправить в облако</button>
         </form>
     </div>
 
@@ -119,70 +57,82 @@
             serverTimestamp, updateDoc, doc, increment 
         } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+        // ТВОИ КЛЮЧИ (уже подставлены из твоего проекта)
         const firebaseConfig = {
             apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
             authDomain: "ramina243.firebaseapp.com",
             projectId: "ramina243",
             storageBucket: "ramina243.firebasestorage.app",
             messagingSenderId: "923144008758",
-            appId: "1:923144008758:web:34347eba64da8be4369497",
-            measurementId: "G-316VTH9LFZ"
+            appId: "1:923144008758:web:34347eba64da8be4369497"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        
-        // ЭТА СТРОКА ПОЗВОЛЯЕТ ТЕСТИРОВАТЬ ВЗЛОМ В КОНСОЛИ F12
-        window.db = db; 
 
-        window.processLike = async (id) => {
-            const docRef = doc(db, "requests", id);
-            try {
-                await updateDoc(docRef, { likes: increment(1) });
-            } catch (e) {
-                console.error("Ошибка безопасности:", e.message);
-            }
-        };
+        // --- САМОСТОЯТЕЛЬНАЯ РАБОТА: ДВЕ ФУНКЦИИ ---
 
-        document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById("submitBtn");
-            const nameInput = document.getElementById("userName").value;
-            const emailInput = document.getElementById("userEmail").value;
-
-            btn.disabled = true;
+        // 1. ФУНКЦИЯ ЗАПИСИ (Create)
+        async function createNewRequest(name, email) {
             try {
                 await addDoc(collection(db, "requests"), {
-                    name: nameInput,
-                    email: emailInput,
+                    name: name,
+                    email: email,
                     likes: 0,
                     timestamp: serverTimestamp()
                 });
-                document.getElementById("message").innerText = "Данные успешно отправлены!";
-                document.getElementById("feedbackForm").reset();
-            } catch (error) {
-                alert("Ошибка безопасности: Данные отклонены сервером.");
+                return true;
+            } catch (e) {
+                console.error("Ошибка записи:", e);
+                return false;
             }
-            btn.disabled = false;
+        }
+
+        // 2. ФУНКЦИЯ ЧТЕНИЯ (Read - Realtime)
+        function startLiveUpdates() {
+            const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const feed = document.getElementById("feed");
+                feed.innerHTML = "";
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const time = data.timestamp?.toDate().toLocaleTimeString() || '...';
+                    feed.innerHTML += `
+                        <div class="post">
+                            <span class="time">${time}</span>
+                            <strong>${data.name}</strong>
+                            <p style="font-size: 13px;">${data.email}</p>
+                            <button class="like-btn" onclick="addLike('${doc.id}')">👍 ${data.likes || 0}</button>
+                        </div>`;
+                });
+            });
+        }
+
+        // --- ЛОГИКА ИНТЕРФЕЙСА ---
+
+        // Обработка формы
+        document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("userName").value;
+            const email = document.getElementById("userEmail").value;
+            
+            const success = await createNewRequest(name, email);
+            if (success) {
+                document.getElementById("feedbackForm").reset();
+            } else {
+                alert("Ошибка при отправке!");
+            }
         });
 
-        const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const feed = document.getElementById("feed");
-            feed.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                feed.innerHTML += `
-                    <div class="post">
-                        <span class="time">${data.timestamp?.toDate().toLocaleTimeString() || '...'}</span>
-                        <strong>${data.name}</strong>
-                        <p style="font-size: 13px; color: #555;">${data.email}</p>
-                        <button class="like-btn" onclick="processLike('${doc.id}')">
-                            👍 ${data.likes || 0}
-                        </button>
-                    </div>`;
-            });
-        });
+        // Функция для лайков (через window, чтобы работала в HTML)
+        window.addLike = async (id) => {
+            const docRef = doc(db, "requests", id);
+            await updateDoc(docRef, { likes: increment(1) });
+        };
+
+        // Запуск чтения данных при загрузке страницы
+        startLiveUpdates();
+
     </script>
 </body>
 </html>
