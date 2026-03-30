@@ -1,219 +1,221 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Cloud Registration | Pink Edition</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        body { 
-            background: linear-gradient(135deg, #fce4ec, #fff1f1); 
-            min-height: 100vh; display: flex; flex-direction: column; 
-            align-items: center; padding: 40px 20px; color: #5d4037; 
-        }
+<meta charset="UTF-8">
+<title>Cloud Registration | Pink Edition</title>
 
-        .form-container { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(10px); 
-            padding: 35px; border-radius: 25px; 
-            width: 100%; max-width: 400px; 
-            border: 1px solid rgba(255, 255, 255, 0.4); 
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); 
-            text-align: center; margin-bottom: 20px; 
-        }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
 
-        /* Стиль поля поиска */
-        .search-container {
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 30px;
-        }
+body{
+background:linear-gradient(135deg,#fce4ec,#fff1f1);
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding:40px;
+}
 
-        .search-input {
-            width: 100%;
-            padding: 12px 20px;
-            border-radius: 50px;
-            border: 2px solid rgba(255, 182, 193, 0.5);
-            background: white;
-            outline: none;
-            transition: 0.3s;
-            font-size: 14px;
-            color: #ec407a;
-        }
+.form-container{
+background:white;
+padding:30px;
+border-radius:20px;
+width:400px;
+text-align:center;
+margin-bottom:20px;
+}
 
-        .search-input:focus {
-            border-color: #f06292;
-            box-shadow: 0 0 10px rgba(240, 98, 146, 0.2);
-        }
+input{
+width:100%;
+padding:12px;
+margin-bottom:15px;
+border-radius:10px;
+border:1px solid #ddd;
+}
 
-        h2 { margin-bottom: 25px; color: #ec407a; font-weight: 300; letter-spacing: 1px; }
+button{
+padding:12px;
+width:100%;
+border:none;
+border-radius:10px;
+background:#f06292;
+color:white;
+cursor:pointer;
+}
 
-        input { 
-            width: 100%; padding: 14px; margin-bottom: 18px; 
-            border: 2px solid rgba(255, 182, 193, 0.3); 
-            border-radius: 12px; font-size: 14px; 
-            background: rgba(255, 255, 255, 0.9); transition: 0.3s; 
-        }
+.search-input{
+width:400px;
+padding:12px;
+border-radius:50px;
+margin-bottom:20px;
+border:2px solid pink;
+}
 
-        input:focus { border-color: #f06292; outline: none; }
+.post{
+background:white;
+padding:15px;
+margin-bottom:10px;
+border-radius:15px;
+width:400px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
 
-        button#submitBtn { 
-            width: 100%; padding: 15px; border: none; border-radius: 12px; 
-            background: linear-gradient(45deg, #ff80ab, #f06292); 
-            color: white; font-size: 16px; font-weight: bold; cursor: pointer; 
-            transition: 0.3s transform ease, 0.3s box-shadow ease; 
-        }
-
-        button#submitBtn:hover { transform: scale(1.03); box-shadow: 0 5px 15px rgba(240, 98, 146, 0.4); }
-
-        #feed { width: 100%; max-width: 450px; }
-
-        .post { 
-            background: white; padding: 20px; border-radius: 18px; 
-            margin-bottom: 18px; box-shadow: 0 5px 15px rgba(255, 182, 193, 0.2); 
-            display: flex; align-items: center; gap: 15px; animation: slideIn 0.4s ease; 
-        }
-        
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .avatar { 
-            width: 50px; height: 50px; border-radius: 50%; 
-            background: #f8bbd0; color: white; display: flex; 
-            justify-content: center; align-items: center; font-size: 18px; font-weight: bold; 
-        }
-
-        .post-info { flex-grow: 1; }
-        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .post-name { font-weight: bold; color: #ec407a; }
-        .post-time { font-size: 11px; color: #bbb; }
-        
-        .like-btn { 
-            margin-top: 10px; padding: 6px 12px; border: none; 
-            border-radius: 10px; background: #fff1f1; color: #f06292; 
-            cursor: pointer; font-size: 13px; font-weight: bold; 
-        }
-        .like-btn:hover { background: #fce4ec; }
-
-        #message { margin-top: 15px; color: #ec407a; font-size: 14px; }
-    </style>
+.like-btn{
+background:#ffe4ec;
+border:none;
+padding:5px 10px;
+border-radius:10px;
+cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="form-container">
-        <h2>Регистрация в Облаке</h2>
-        <form id="feedbackForm">
-            <input type="text" id="userName" placeholder="Как вас зовут?" required>
-            <input type="email" id="userEmail" placeholder="Ваш Email" required>
-            <button type="submit" id="submitBtn">Подписаться</button>
-            <p id="message"></p>
-        </form>
-    </div>
+<div class="form-container">
+<h2>Регистрация</h2>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по имени...">
-    </div>
+<form id="feedbackForm">
+<input type="text" id="userName" placeholder="Имя" required>
+<input type="email" id="userEmail" placeholder="Email" required>
+<button type="submit">Отправить</button>
+<p id="message"></p>
+</form>
 
-    <div id="feed"></div>
+<p id="onlineCount">Онлайн: 0</p>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { 
-            getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
-            serverTimestamp, updateDoc, doc, increment 
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+<input type="text" id="searchInput" class="search-input" placeholder="Поиск...">
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
-            authDomain: "ramina243.firebaseapp.com",
-            projectId: "ramina243",
-            storageBucket: "ramina243.firebasestorage.app",
-            messagingSenderId: "923144008758",
-            appId: "1:923144008758:web:34347eba64da8be4369497"
-        };
+<div id="feed"></div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+<script type="module">
 
-        let currentSearchTerm = "";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import {
+getFirestore, collection, addDoc, query, orderBy, onSnapshot,
+serverTimestamp, updateDoc, doc, increment, setDoc
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        // 1. ФУНКЦИЯ ЗАПИСИ
-        async function createNewPost(name, email) {
-            try {
-                await addDoc(collection(db, "requests"), {
-                    name: name,
-                    email: email,
-                    likes: 0,
-                    timestamp: serverTimestamp()
-                });
-                return true;
-            } catch (e) {
-                console.error("Ошибка записи:", e);
-                return false;
-            }
-        }
+const firebaseConfig = {
+apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
+authDomain: "ramina243.firebaseapp.com",
+projectId: "ramina243",
+storageBucket: "ramina243.firebasestorage.app",
+messagingSenderId: "923144008758",
+appId: "1:923144008758:web:34347eba64da8be4369497"
+};
 
-        // 2. ФУНКЦИЯ ЧТЕНИЯ С ФИЛЬТРАЦИЕЙ
-        function loadRequests() {
-            const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
-            onSnapshot(q, (snapshot) => {
-                const feed = document.getElementById("feed");
-                feed.innerHTML = "";
-                
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    
-                    // Логика поиска: проверяем, содержит ли имя текст из поиска
-                    if (data.name.toLowerCase().includes(currentSearchTerm.toLowerCase())) {
-                        const initials = data.name.substring(0, 2).toUpperCase();
-                        const time = data.timestamp?.toDate().toLocaleTimeString() || "...";
-                        
-                        feed.innerHTML += `
-                            <div class="post">
-                                <div class="avatar">${initials}</div>
-                                <div class="post-info">
-                                    <div class="post-header">
-                                        <span class="post-name">${data.name}</span>
-                                        <span class="post-time">${time}</span>
-                                    </div>
-                                    <p style="font-size: 13px; color: #888;">${data.email}</p>
-                                    <button class="like-btn" onclick="addLikeToPost('${docSnap.id}')">
-                                        💖 ${data.likes || 0}
-                                    </button>
-                                </div>
-                            </div>`;
-                    }
-                });
-            });
-        }
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-        // Слушатель для поля поиска
-        document.getElementById("searchInput").addEventListener("input", (e) => {
-            currentSearchTerm = e.target.value;
-            loadRequests(); // Перезапускаем отображение при вводе
-        });
+let currentSearchTerm = "";
+let firstLoad = true;
 
-        // Логика формы
-        document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById("submitBtn");
-            const name = document.getElementById("userName").value;
-            const email = document.getElementById("userEmail").value;
-            
-            btn.innerText = "Загрузка...";
-            const success = await createNewPost(name, email);
-            if (success) {
-                document.getElementById("feedbackForm").reset();
-                document.getElementById("message").innerText = "Готово! Данные сохранены.";
-            }
-            btn.innerText = "Подписаться";
-        });
+// ====== 1. ЗАПИСЬ ======
+async function createNewPost(name, email){
+await addDoc(collection(db,"requests"),{
+name,
+email,
+likes:0,
+timestamp:serverTimestamp()
+});
+}
 
-        window.addLikeToPost = async (id) => {
-            const docRef = doc(db, "requests", id);
-            await updateDoc(docRef, { likes: increment(1) });
-        };
+// ====== 2. ЧТЕНИЕ ======
+function loadRequests(){
+const q = query(collection(db,"requests"),orderBy("timestamp","desc"));
 
-        loadRequests();
-    </script>
+onSnapshot(q,(snapshot)=>{
+const feed = document.getElementById("feed");
+feed.innerHTML="";
+
+if(!firstLoad){
+showNotification("🔥 Новый пользователь!");
+}
+firstLoad=false;
+
+snapshot.forEach((docSnap)=>{
+const data = docSnap.data();
+
+if(data.name.toLowerCase().includes(currentSearchTerm.toLowerCase())){
+feed.innerHTML += `
+<div class="post">
+<div>
+<b>${data.name}</b><br>
+<small>${data.email}</small>
+</div>
+<button class="like-btn" onclick="addLikeToPost('${docSnap.id}',this)">
+💖 ${data.likes || 0}
+</button>
+</div>`;
+}
+});
+});
+}
+
+// ====== ПОИСК ======
+document.getElementById("searchInput").addEventListener("input",(e)=>{
+currentSearchTerm = e.target.value;
+loadRequests();
+});
+
+// ====== ФОРМА ======
+document.getElementById("feedbackForm").addEventListener("submit",async(e)=>{
+e.preventDefault();
+
+const name = document.getElementById("userName").value;
+const email = document.getElementById("userEmail").value;
+
+await createNewPost(name,email);
+
+document.getElementById("feedbackForm").reset();
+showNotification("✅ Сохранено!");
+});
+
+// ====== ЛАЙК ======
+window.addLikeToPost = async(id,btn)=>{
+btn.style.transform="scale(1.3)";
+setTimeout(()=>btn.style.transform="scale(1)",200);
+
+const ref = doc(db,"requests",id);
+await updateDoc(ref,{likes:increment(1)});
+};
+
+// ====== УВЕДОМЛЕНИЕ ======
+function showNotification(text){
+const msg = document.getElementById("message");
+msg.innerText = text;
+setTimeout(()=>msg.innerText="",3000);
+}
+
+// ====== ОНЛАЙН ======
+const userId = Date.now().toString();
+
+async function setUserOnline(){
+await setDoc(doc(db,"onlineUsers",userId),{
+active:true,
+lastSeen:serverTimestamp()
+});
+}
+
+function trackOnline(){
+const q = query(collection(db,"onlineUsers"));
+onSnapshot(q,(snapshot)=>{
+document.getElementById("onlineCount").innerText =
+"Онлайн: " + snapshot.size;
+});
+}
+
+setUserOnline();
+trackOnline();
+
+// ====== СТАРТ ======
+loadRequests();
+
+</script>
+
 </body>
 </html>
