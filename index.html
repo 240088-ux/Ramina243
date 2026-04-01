@@ -2,37 +2,58 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Cloud Registration | Comments Edition</title>
+    <title>Cloud Registration | Personalized</title>
     <style>
-        /* Оставляю твои стили и добавляю немного для комментария */
+        /* Твои оригинальные стили */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: linear-gradient(135deg, #fce4ec, #fff1f1); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; color: #5d4037; }
+        
+        /* Стили для блока авторизации */
+        .auth-container { margin-bottom: 20px; text-align: center; }
+        .user-profile { display: flex; align-items: center; gap: 10px; background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .user-photo { width: 35px; height: 35px; border-radius: 50%; }
+        .logout-btn { background: none; border: none; color: #ec407a; cursor: pointer; font-size: 12px; text-decoration: underline; }
+
         .form-container { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); padding: 35px; border-radius: 25px; width: 100%; max-width: 400px; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); text-align: center; margin-bottom: 20px; }
         h2 { margin-bottom: 25px; color: #ec407a; font-weight: 300; letter-spacing: 1px; }
         input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid rgba(255, 182, 193, 0.3); border-radius: 12px; font-size: 14px; background: rgba(255, 255, 255, 0.9); transition: 0.3s; }
         input:focus { border-color: #f06292; outline: none; }
-        button#submitBtn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(45deg, #ff80ab, #f06292); color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button#submitBtn:hover { transform: scale(1.03); box-shadow: 0 5px 15px rgba(240, 98, 146, 0.4); }
+        
+        button#submitBtn, .login-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(45deg, #ff80ab, #f06292); color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button#submitBtn:hover, .login-btn:hover { transform: scale(1.03); box-shadow: 0 5px 15px rgba(240, 98, 146, 0.4); }
+
         .search-container { width: 100%; max-width: 450px; margin: 20px 0; }
         .search-input { width: 100%; padding: 12px 20px; border-radius: 50px; border: 2px solid rgba(255, 182, 193, 0.5); outline: none; }
+        
         #feed { width: 100%; max-width: 450px; }
-        .post { background: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; box-shadow: 0 5px 15px rgba(255, 182, 193, 0.2); display: flex; align-items: flex-start; gap: 15px; animation: slideIn 0.4s ease; }
-        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #f8bbd0; color: white; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; flex-shrink: 0; }
-        .post-info { flex-grow: 1; }
+        .post { background: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; box-shadow: 0 5px 15px rgba(255, 182, 193, 0.2); display: flex; align-items: flex-start; gap: 15px; animation: slideIn 0.4s ease; flex-direction: column; }
+        .post-header { display: flex; align-items: center; gap: 12px; width: 100%; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #f8bbd0; }
+        .post-info { flex-grow: 1; width: 100%; }
         .post-name { font-weight: bold; color: #ec407a; }
-        .post-comment { margin: 8px 0; font-size: 14px; color: #5d4037; line-height: 1.4; background: #fff9fb; padding: 8px; border-radius: 8px; }
-        .like-btn { padding: 6px 12px; border: none; border-radius: 10px; background: #fff1f1; color: #f06292; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .post-comment { margin: 8px 0; font-size: 14px; color: #5d4037; line-height: 1.4; background: #fff9fb; padding: 10px; border-radius: 8px; width: 100%; }
+        .post-img { width: 100%; border-radius: 12px; margin-top: 10px; display: block; }
+        .like-btn { padding: 6px 12px; border: none; border-radius: 10px; background: #fff1f1; color: #f06292; cursor: pointer; font-size: 13px; font-weight: bold; align-self: flex-start; }
+        
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="form-container">
+    <div class="auth-container">
+        <button id="loginBtn" class="login-btn">Войти через Google для отзыва</button>
+        <div id="userInfo" style="display: none;" class="user-profile">
+            <img id="userPhoto" class="user-photo" src="" alt="avatar">
+            <span id="userNameDisplay"></span>
+            <button id="logoutBtn" class="logout-btn">Выйти</button>
+        </div>
+    </div>
+
+    <div class="form-container" id="formBox" style="display: none;">
         <h2>Оставить отзыв</h2>
         <form id="feedbackForm">
-            <input type="text" id="userName" placeholder="Ваше имя" required>
-            <input type="email" id="userEmail" placeholder="Ваш Email" required>
             <input type="text" id="userComment" placeholder="Ваш комментарий..." required>
+            <input type="text" id="postImage" placeholder="Ссылка на картинку (URL)">
             <button type="submit" id="submitBtn">Опубликовать</button>
             <p id="message" style="margin-top:10px; font-size:12px; color: #ec407a;"></p>
         </form>
@@ -46,10 +67,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { 
-            getFirestore, collection, addDoc, query, orderBy, onSnapshot, 
-            serverTimestamp, updateDoc, doc, increment 
-        } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        // Импортируем Auth
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
@@ -62,27 +82,56 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
         let currentSearchTerm = "";
 
-        // 1. ФУНКЦИЯ ЗАПИСИ (Теперь сохраняет комментарий)
-        async function createNewPost(name, email, comment) {
+        // --- ЛОГИКА ВХОДА ---
+        const loginBtn = document.getElementById("loginBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const userInfo = document.getElementById("userInfo");
+        const formBox = document.getElementById("formBox");
+
+        loginBtn.onclick = () => signInWithPopup(auth, provider);
+        logoutBtn.onclick = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginBtn.style.display = "none";
+                userInfo.style.display = "flex";
+                formBox.style.display = "block";
+                document.getElementById("userPhoto").src = user.photoURL;
+                document.getElementById("userNameDisplay").innerText = user.displayName;
+            } else {
+                loginBtn.style.display = "block";
+                userInfo.style.display = "none";
+                formBox.style.display = "none";
+            }
+        });
+
+        // --- ФУНКЦИЯ ЗАПИСИ ---
+        async function createNewPost(comment, imageUrl) {
             try {
+                const user = auth.currentUser;
                 await addDoc(collection(db, "requests"), {
-                    name: name,
-                    email: email,
-                    comment: comment, // Поле комментария для Firebase
+                    name: user.displayName,
+                    email: user.email,
+                    avatar: user.photoURL,
+                    comment: comment,
+                    image: imageUrl, // Новое поле для картинки
                     likes: 0,
                     timestamp: serverTimestamp()
                 });
                 return true;
             } catch (e) {
                 console.error("Ошибка:", e);
+                alert("Ошибка доступа! Проверьте Rules в Firebase.");
                 return false;
             }
         }
 
-        // 2. ФУНКЦИЯ ЧТЕНИЯ
+        // --- ФУНКЦИЯ ЧТЕНИЯ ---
         function loadRequests() {
             const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -92,49 +141,55 @@
                 snapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     if (data.name.toLowerCase().includes(currentSearchTerm.toLowerCase())) {
-                        const initials = data.name.substring(0, 2).toUpperCase();
+                        
+                        // Проверка: если есть ссылка на картинку, создаем тег img
+                        const imgTag = data.image ? `<img src="${data.image}" class="post-img">` : "";
                         
                         feed.innerHTML += `
                             <div class="post">
-                                <div class="avatar">${initials}</div>
-                                <div class="post-info">
-                                    <div style="display:flex; justify-content:space-between">
-                                        <span class="post-name">${data.name}</span>
-                                        <span style="font-size:10px; color:#ccc;">${data.timestamp?.toDate().toLocaleTimeString() || ''}</span>
+                                <div class="post-header">
+                                    <img src="${data.avatar || 'https://via.placeholder.com/50'}" class="avatar">
+                                    <div class="post-info">
+                                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                                            <span class="post-name">${data.name}</span>
+                                            <span style="font-size:10px; color:#ccc;">${data.timestamp?.toDate().toLocaleTimeString() || ''}</span>
+                                        </div>
                                     </div>
-                                    <div class="post-comment">${data.comment || "Без комментария"}</div>
-                                    <button class="like-btn" onclick="addLikeToPost('${docSnap.id}')">
-                                        💖 ${data.likes || 0}
-                                    </button>
                                 </div>
+                                <div class="post-comment">${data.comment || "Без комментария"}</div>
+                                ${imgTag}
+                                <button class="like-btn" onclick="addLikeToPost('${docSnap.id}')">
+                                    💖 ${data.likes || 0}
+                                </button>
                             </div>`;
                     }
                 });
             });
         }
 
-        // Слушатель поиска
+        // Слушатели
         document.getElementById("searchInput").addEventListener("input", (e) => {
             currentSearchTerm = e.target.value;
             loadRequests();
         });
 
-        // Логика формы
         document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("submitBtn");
-            const name = document.getElementById("userName").value;
-            const email = document.getElementById("userEmail").value;
             const comment = document.getElementById("userComment").value;
+            const imageUrl = document.getElementById("postImage").value;
             
             btn.innerText = "Публикуем...";
-            const success = await createNewPost(name, email, comment);
+            btn.disabled = true;
+
+            const success = await createNewPost(comment, imageUrl);
             if (success) {
                 document.getElementById("feedbackForm").reset();
-                document.getElementById("message").innerText = "Ваш отзыв добавлен! ✨";
+                document.getElementById("message").innerText = "Готово! ✨";
                 setTimeout(() => { document.getElementById("message").innerText = ""; }, 3000);
             }
             btn.innerText = "Опубликовать";
+            btn.disabled = false;
         });
 
         window.addLikeToPost = async (id) => {
