@@ -7,7 +7,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #fff1f1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #5d4037; }
         
-        /* Авторизация */
         .auth-bar { width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 50px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255,182,193,0.3); }
         .user-info { display: flex; align-items: center; gap: 10px; }
         .user-photo { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ff80ab; }
@@ -15,16 +14,13 @@
         .login-btn { background: #ff80ab; color: white; }
         .logout-btn { background: #eee; color: #888; font-size: 11px; }
 
-        /* Вкладки */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { padding: 10px 25px; border: none; border-radius: 15px; background: white; cursor: pointer; color: #f06292; font-weight: bold; }
         .tab-btn.active { background: #f06292; color: white; }
 
-        /* Контент */
         .content-section { width: 100%; max-width: 500px; display: none; }
         .content-section.active { display: block; }
 
-        /* Стили для DM (как на скриншоте) */
         .dm-container { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         .user-list { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #fff1f1; }
         .user-item { text-align: center; cursor: pointer; min-width: 70px; }
@@ -33,7 +29,7 @@
         .user-item p { font-size: 10px; margin-top: 5px; color: #f06292; font-weight: bold; }
 
         .chat-box { height: 300px; overflow-y: auto; background: #fff9fb; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; }
+        .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; word-wrap: break-word; }
         .msg.sent { align-self: flex-end; background: #ff80ab; color: white; border-bottom-right-radius: 2px; }
         .msg.received { align-self: flex-start; background: #fce4ec; color: #5d4037; border-bottom-left-radius: 2px; }
 
@@ -41,7 +37,6 @@
         .msg-input-area input { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid #fff1f1; outline: none; }
         .send-btn { background: #ff80ab; border: none; color: white; width: 45px; border-radius: 10px; cursor: pointer; }
 
-        /* Посты (Feed) */
         .post { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
         .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
         .post-comment { background: #fff9fb; padding: 12px; border-radius: 12px; font-size: 14px; margin: 10px 0; }
@@ -81,8 +76,7 @@
 
     <div id="dmTab" class="content-section">
         <div class="dm-container">
-            <div id="userList" class="user-list">
-                </div>
+            <div id="userList" class="user-list"></div>
             <div id="chatWindow" style="display:none;">
                 <h4 id="chatWithTitle" style="margin-bottom:10px; color:#f06292; font-size:14px;">Чат с: ...</h4>
                 <div class="chat-box" id="chatBox"></div>
@@ -117,15 +111,13 @@
         let selectedUserId = null;
         let chatUnsubscribe = null;
 
-        // --- ТАБЫ ---
         window.switchTab = (id) => {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            event.target.classList.add('active');
+            event.currentTarget.classList.add('active');
         };
 
-        // --- АВТОРИЗАЦИЯ ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById("loginBtn").style.display = "none";
@@ -134,13 +126,12 @@
                 document.getElementById("userPhoto").src = user.photoURL;
                 document.getElementById("userName").innerText = user.displayName;
 
-                // Сохраняем пользователя в список для DM
                 await setDoc(doc(db, "users", user.uid), {
                     uid: user.uid,
                     name: user.displayName,
                     photo: user.photoURL,
                     lastSeen: serverTimestamp()
-                });
+                }, { merge: true });
                 loadUsers();
             } else {
                 document.getElementById("loginBtn").style.display = "block";
@@ -152,7 +143,7 @@
         document.getElementById("loginBtn").onclick = () => signInWithPopup(auth, provider);
         document.getElementById("logoutBtn").onclick = () => signOut(auth);
 
-        // --- ЛЕНТА (FEED) ---
+        // --- ЛЕНТА ---
         document.getElementById("sendPostBtn").onclick = async () => {
             const comment = document.getElementById("userComment").value;
             const image = document.getElementById("postImage").value;
@@ -191,7 +182,7 @@
 
         window.likePost = (id) => updateDoc(doc(db, "requests", id), { likes: increment(1) });
 
-        // --- ЛИЧНЫЕ СООБЩЕНИЯ (DM) ---
+        // --- ЛИЧНЫЕ СООБЩЕНИЯ ---
         function loadUsers() {
             onSnapshot(collection(db, "users"), (snap) => {
                 const list = document.getElementById("userList");
@@ -215,15 +206,19 @@
             document.getElementById("chatWindow").style.display = "block";
             document.getElementById("chatWithTitle").innerText = "Чат с: " + targetUser.name;
             loadMessages(targetUser.uid);
-            loadUsers(); // Обновить выделение
+            loadUsers(); 
         }
 
         function loadMessages(targetUid) {
             if(chatUnsubscribe) chatUnsubscribe();
             
+            // Создаем единый ID чата для обоих участников
+            const myId = auth.currentUser.uid;
+            const chatId = myId < targetUid ? myId + "_" + targetUid : targetUid + "_" + myId;
+
             const q = query(
                 collection(db, "direct_messages"),
-                where("chatId", "in", [auth.currentUser.uid + "_" + targetUid, targetUid + "_" + auth.currentUser.uid]),
+                where("chatId", "==", chatId),
                 orderBy("timestamp", "asc")
             );
 
@@ -232,25 +227,34 @@
                 box.innerHTML = "";
                 snap.forEach(d => {
                     const m = d.data();
-                    const isMine = m.senderId === auth.currentUser.uid;
+                    const isMine = m.senderId === myId;
                     box.innerHTML += `<div class="msg ${isMine ? 'sent' : 'received'}">${m.text}</div>`;
                 });
                 box.scrollTop = box.scrollHeight;
+            }, (error) => {
+                console.error("Ошибка чата:", error);
+                // Если видишь эту ошибку, кликни по ссылке в консоли для создания индекса
             });
         }
 
         document.getElementById("sendMsgBtn").onclick = async () => {
-            const text = document.getElementById("msgInput").value;
+            const input = document.getElementById("msgInput");
+            const text = input.value.trim();
             if(!text || !selectedUserId) return;
 
+            const myId = auth.currentUser.uid;
+            const targetId = selectedUserId;
+            // Всегда одинаковый ID чата для пары
+            const chatId = myId < targetId ? myId + "_" + targetId : targetId + "_" + myId;
+
             await addDoc(collection(db, "direct_messages"), {
-                chatId: auth.currentUser.uid + "_" + selectedUserId,
-                senderId: auth.currentUser.uid,
-                receiverId: selectedUserId,
+                chatId: chatId,
+                senderId: myId,
+                receiverId: targetId,
                 text: text,
                 timestamp: serverTimestamp()
             });
-            document.getElementById("msgInput").value = "";
+            input.value = "";
         };
 
     </script>
