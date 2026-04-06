@@ -1,180 +1,174 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Cloud Ultra Pink | DM</title>
+    <meta charset="UTF-8">
+    <title>Cloud Ultra Pink | Real-time & DM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #fff1f1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #5d4037; }
+        
+        .auth-bar { width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 50px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255,182,193,0.3); }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-photo { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ff80ab; }
+        .login-btn, .logout-btn { padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .login-btn { background: #ff80ab; color: white; }
+        .logout-btn { background: #eee; color: #888; font-size: 11px; }
 
-<style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI'; }
-body { background:#fff1f1; display:flex; flex-direction:column; align-items:center; padding:20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 25px; border: none; border-radius: 15px; background: white; cursor: pointer; color: #f06292; font-weight: bold; }
+        .tab-btn.active { background: #f06292; color: white; }
 
-.auth-bar { width:100%; max-width:600px; display:flex; justify-content:space-between; background:white; padding:15px; border-radius:20px; margin-bottom:20px; }
-.user-photo { width:40px; height:40px; border-radius:50%; }
+        .content-section { width: 100%; max-width: 500px; display: none; }
+        .content-section.active { display: block; }
 
-.tabs { display:flex; gap:10px; margin-bottom:20px; }
-.tab-btn { padding:10px 20px; border:none; border-radius:10px; cursor:pointer; }
-.active { background:#f06292; color:white; }
+        .dm-container { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .user-list { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #fff1f1; }
+        .user-item { text-align: center; cursor: pointer; min-width: 70px; }
+        .user-item img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; padding: 2px; }
+        .user-item.selected img { border-color: #ff80ab; }
+        .user-item p { font-size: 10px; margin-top: 5px; color: #f06292; font-weight: bold; }
 
-.content { display:none; width:100%; max-width:500px; }
-.content.active { display:block; }
+        .chat-box { height: 300px; overflow-y: auto; background: #fff9fb; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; word-wrap: break-word; }
+        .msg.sent { align-self: flex-end; background: #ff80ab; color: white; }
+        .msg.received { align-self: flex-start; background: #fce4ec; }
 
-.dm-box { background:white; padding:20px; border-radius:20px; }
-.user-list { display:flex; gap:10px; overflow:auto; margin-bottom:10px; }
-.user { text-align:center; cursor:pointer; }
-.user img { width:50px; border-radius:50%; }
+        .msg-input-area { display: flex; gap: 10px; }
+        .msg-input-area input { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid #fff1f1; }
+        .send-btn { background: #ff80ab; border: none; color: white; width: 45px; border-radius: 10px; }
 
-.chat { height:250px; overflow:auto; background:#fff9fb; padding:10px; border-radius:10px; margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
-.msg { padding:10px; border-radius:10px; max-width:70%; }
-.sent { background:#f06292; color:white; align-self:flex-end; }
-.received { background:#eee; align-self:flex-start; }
+        .post { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .post-comment { background: #fff9fb; padding: 12px; border-radius: 12px; margin: 10px 0; }
+        .post-img { width: 100%; border-radius: 15px; margin-top: 10px; }
+        .like-btn { border: none; background: #fff1f1; color: #f06292; padding: 8px 15px; border-radius: 10px; }
 
-.input { display:flex; gap:10px; }
-input { flex:1; padding:10px; border-radius:10px; border:1px solid #ddd; }
-button { padding:10px; border:none; border-radius:10px; cursor:pointer; background:#f06292; color:white; }
-</style>
+        .form-box { background: white; padding: 25px; border-radius: 20px; margin-bottom: 25px; width: 100%; }
+        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 2px solid #fff1f1; }
+        .submit-btn { width: 100%; padding: 15px; background: #f06292; color: white; border: none; border-radius: 12px; }
+    </style>
 </head>
-
 <body>
 
 <div class="auth-bar">
-    <div id="userInfo" style="display:none;">
+    <div id="userInfo" style="display:none;" class="user-info">
         <img id="userPhoto" class="user-photo">
         <span id="userName"></span>
-        <button id="logoutBtn">Выйти</button>
+        <button class="logout-btn" id="logoutBtn">Выйти</button>
     </div>
-    <button id="loginBtn">Войти через Google</button>
+    <button class="login-btn" id="loginBtn">Войти через Google</button>
 </div>
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('feed')">Лента</button>
-    <button class="tab-btn" onclick="switchTab('dm')">Сообщения</button>
+    <button class="tab-btn active" onclick="switchTab('feedTab')">Лента</button>
+    <button class="tab-btn" onclick="switchTab('dmTab')">Сообщения (DM)</button>
 </div>
 
-<div id="feed" class="content active">
-    <p style="text-align:center;">Лента работает 👍</p>
+<div id="feedTab" class="content-section active">
+    <div class="form-box" id="postForm" style="display:none;">
+        <input type="text" id="userComment">
+        <input type="text" id="postImage">
+        <button id="sendPostBtn">Опубликовать</button>
+    </div>
+    <div id="feed"></div>
 </div>
 
-<div id="dm" class="content">
-    <div class="dm-box">
-        <div id="users" class="user-list"></div>
-
-        <div id="chatBlock" style="display:none;">
-            <div id="chat" class="chat"></div>
-
-            <div class="input">
-                <input id="msg" placeholder="Сообщение...">
-                <button id="send">➤</button>
-            </div>
+<div id="dmTab" class="content-section">
+    <div class="dm-container">
+        <div id="userList" class="user-list"></div>
+        <div id="chatWindow" style="display:none;">
+            <h4 id="chatWithTitle"></h4>
+            <div class="chat-box" id="chatBox"></div>
+            <input id="msgInput">
+            <button id="sendMsgBtn">➤</button>
         </div>
-
-        <p id="selectText">Выбери пользователя</p>
     </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBUDDbQGURKwXY8dQ_qF-7v2n0NKEf62MA",
+const app = initializeApp({
+    apiKey: "AIzaSy...",
     authDomain: "ramina243.firebaseapp.com",
     projectId: "ramina243"
-};
+});
 
-const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-let selectedUser = null;
-let unsubscribe = null;
-
-window.switchTab = (id) => {
-    document.querySelectorAll('.content').forEach(e => e.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-};
-
-loginBtn.onclick = () => signInWithPopup(auth, provider);
-logoutBtn.onclick = () => signOut(auth);
+let selectedUserId = null;
+let unsub = null;
 
 onAuthStateChanged(auth, async (user) => {
     if(user){
-        userInfo.style.display = "block";
-        loginBtn.style.display = "none";
-
-        userPhoto.src = user.photoURL;
-        userName.innerText = user.displayName;
-
+        document.getElementById("loginBtn").style.display="none";
         await setDoc(doc(db,"users",user.uid),{
             uid:user.uid,
             name:user.displayName,
             photo:user.photoURL
-        });
-
+        },{merge:true});
         loadUsers();
     }
 });
 
+loginBtn.onclick=()=>signInWithPopup(auth,provider);
+logoutBtn.onclick=()=>signOut(auth);
+
 function loadUsers(){
-    onSnapshot(collection(db,"users"), snap=>{
-        users.innerHTML="";
+    onSnapshot(collection(db,"users"),snap=>{
+        userList.innerHTML="";
         snap.forEach(d=>{
             const u=d.data();
             if(u.uid===auth.currentUser.uid) return;
-
-            users.innerHTML += `
-            <div class="user" onclick="openChat('${u.uid}','${u.name}')">
-                <img src="${u.photo}">
-                <p>${u.name.split(" ")[0]}</p>
-            </div>`;
+            const el=document.createElement("div");
+            el.innerHTML=`<img src="${u.photo}"><p>${u.name}</p>`;
+            el.onclick=()=>openChat(u);
+            userList.appendChild(el);
         });
     });
 }
 
-window.openChat = (uid,name)=>{
-    selectedUser = uid;
-    chatBlock.style.display="block";
-    selectText.style.display="none";
-
-    loadMessages(uid);
-};
+function openChat(u){
+    selectedUserId=u.uid;
+    chatWindow.style.display="block";
+    loadMessages(u.uid);
+}
 
 function loadMessages(uid){
-    if(unsubscribe) unsubscribe();
+    if(unsub) unsub();
+    const my=auth.currentUser.uid;
+    const chatId=my<uid?my+"_"+uid:uid+"_"+my;
 
-    const my = auth.currentUser.uid;
-    const chatId = my < uid ? my+"_"+uid : uid+"_"+my;
-
-    const q = query(collection(db,"chats",chatId,"messages"), orderBy("timestamp"));
-
-    unsubscribe = onSnapshot(q, snap=>{
-        chat.innerHTML="";
-        snap.forEach(d=>{
-            const m=d.data();
-            const side = m.senderId===my ? "sent":"received";
-            chat.innerHTML += `<div class="msg ${side}">${m.text}</div>`;
-        });
-        chat.scrollTop=chat.scrollHeight;
-    });
+    unsub=onSnapshot(
+        query(collection(db,"chats",chatId,"messages"),orderBy("timestamp")),
+        snap=>{
+            chatBox.innerHTML="";
+            snap.forEach(d=>{
+                const m=d.data();
+                chatBox.innerHTML+=`<div class="msg ${m.senderId===my?'sent':'received'}">${m.text}</div>`;
+            });
+        }
+    );
 }
 
-send.onclick = async ()=>{
-    const text = msg.value.trim();
-    if(!text || !selectedUser) return;
+sendMsgBtn.onclick=async()=>{
+    const text=msgInput.value.trim();
+    if(!text||!selectedUserId)return;
 
-    const my = auth.currentUser.uid;
-    const chatId = my < selectedUser ? my+"_"+selectedUser : selectedUser+"_"+my;
+    const my=auth.currentUser.uid;
+    const chatId=my<selectedUserId?my+"_"+selectedUserId:selectedUserId+"_"+my;
 
     await addDoc(collection(db,"chats",chatId,"messages"),{
-        senderId: my,
-        text: text,
-        timestamp: serverTimestamp()
+        senderId:my,
+        text,
+        timestamp:serverTimestamp()
     });
-
-    msg.value="";
+    msgInput.value="";
 };
 </script>
-
 </body>
 </html>
