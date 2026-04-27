@@ -37,36 +37,37 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // --- НАСТРОЙКИ (ВСТАВЬ СВОИ ДАННЫЕ) ---
-       const URL = 'https://aecurveycefurzgkloaq.supabase.co'; // Возьмите в Settings -> API
-
-        const KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';    // Возьмите в Settings -> API
-
+        const URL = 'https://aecurveycefurzgkloaq.supabase.co';
+        const KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
         const MY_ID = '2fbb78d2-31ca-4e32-b3c7-21d04ccc99e';
 
         const supabase = createClient(URL, KEY)
 
-        // Функция обновления статуса
+        // ВАЖНО: Проверьте название таблицы в Supabase. 
+        // Если там "ramina" (с маленькой), замените здесь 'Ramina' на 'ramina'
+        const TABLE_NAME = 'Ramina'; 
+
         window.changeStatus = async (text, color) => {
             const { error } = await supabase
-                .from('Ramina')
-                .update({ status: text, avatar_url: color }) // Используем avatar_url как цвет (как в твоей таблице)
-                .eq('id', MY_ID)
+                .from(TABLE_NAME)
+                .update({ status: text, avatar_url: color })
+                .eq('id', MY_ID);
             
-            if (error) console.error(error);
+            if (error) console.error("Ошибка обновления:", error);
             else fetchGroup();
         }
 
-        // Функция загрузки списка
         async function fetchGroup() {
             const { data, error } = await supabase
-                .from('profiles')
+                .from(TABLE_NAME) // Здесь раньше было 'profiles', теперь TABLE_NAME
                 .select('*')
                 .order('username', { ascending: true });
 
-            if (error) return;
+            if (error) {
+                console.error("Ошибка загрузки:", error);
+                return;
+            }
 
-            // Отображаем список
             const list = document.getElementById('groupList');
             list.innerHTML = data.map(user => `
                 <div class="user-item">
@@ -78,14 +79,12 @@
                 </div>
             `).join('');
 
-            // Приветствие
             const me = data.find(u => u.id === MY_ID);
             if (me) document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
         }
 
         fetchGroup();
-        setInterval(fetchGroup, 5000); // Обновлять каждые 5 секунд
+        setInterval(fetchGroup, 5000);
     </script>
 </body>
 </html>
-
