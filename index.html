@@ -46,66 +46,65 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-    const URL = 'https://aecurveycefurzgkloaq.supabase.co';
-    const KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
-    const MY_ID = '117f40da-c90e-4a98-9289-9bdd20e4c855';
+    // 1. Сначала объявляем константы (проверьте, что они не дублируются выше)
+    const SUPABASE_URL = 'https://aecurveycefurzgkloaq.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
+    const MY_USER_ID = '117f40da-c90e-4a98-9289-9bdd20e4c855';
 
-    // ВОТ ОДНО ОБЪЯВЛЕНИЕ (оставьте его)
-    const supabase = supabase.createClient(URL, KEY); 
+    // 2. Инициализируем клиент (только один раз!)
+    // Используем window.supabase, чтобы избежать конфликта имен
+    const sb_client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ... возможно, ниже вы случайно вставили это еще раз ...
-
-    // ВОТ ВТОРОЕ ЛИШНЕЕ ОБЪЯВЛЕНИЕ (удалите его целиком!)
-    const supabase = supabase.createClient(URL, KEY); // <--- УДАЛИТЬ ЭТУ СТРОКУ
-    
-    // Функция смены статуса
-    async function changeStatus(text, color) {
-        const { error } = await supabase
+    // 3. Функция смены статуса
+    async function changeStatus(statusText, statusColor) {
+        console.log("Меняем статус на:", statusText);
+        const { error } = await sb_client
             .from('profiles')
-            .update({ status: text, color: color })
-            .eq('id', MY_ID);
+            .update({ status: statusText, color: statusColor })
+            .eq('id', MY_USER_ID);
 
         if (error) {
-            alert("Ошибка! Проверьте RLS политики в Supabase.");
-            console.error(error);
+            console.error("Ошибка обновления:", error);
+            alert("Ошибка при обновлении статуса!");
         } else {
-            fetchGroup(); // Обновляем список сразу после изменения
+            fetchGroup();
         }
     }
 
-    // Функция загрузки всей группы
+    // 4. Функция загрузки данных группы
     async function fetchGroup() {
-        const { data, error } = await supabase
+        const { data, error } = await sb_client
             .from('profiles')
             .select('*')
             .order('username', { ascending: true });
 
-        if (error) return console.error(error);
+        if (error) {
+            console.error("Ошибка загрузки данных:", error);
+            return;
+        }
 
-        const list = document.getElementById('groupList');
-        list.innerHTML = data.map(user => `
-            <div class="user-item">
-                <div class="status-dot" style="background: ${user.color || '#ccc'}"></div>
-                <div class="user-info">
-                    <b>${user.username}</b>
-                    <span>${user.status || 'Статус не задан'}</span>
+        const listContainer = document.getElementById('groupList');
+        if (listContainer) {
+            listContainer.innerHTML = data.map(user => `
+                <div class="user-item">
+                    <div class="status-dot" style="background: ${user.color || '#ccc'}"></div>
+                    <div class="user-info">
+                        <b>${user.username}</b>
+                        <span>${user.status || 'Статус не задан'}</span>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `).join('');
+        }
 
-        // Обновляем приветствие для себя
-        const me = data.find(u => u.id === MY_ID);
-        if (me) {
+        const me = data.find(u => u.id === MY_USER_ID);
+        if (me && document.getElementById('myInfo')) {
             document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
         }
     }
 
-    // Первая загрузка
+    // Запускаем загрузку
     fetchGroup();
-
-    // Обновление каждые 5 секунд (Realtime монитор)
     setInterval(fetchGroup, 5000);
-
 </script>
 
 </body>
