@@ -2,160 +2,89 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Cloud Ultra Pink | Real-time & DM</title>
+    <title>Монитор статусов</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #fff1f1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #5d4037; }
-        
-        .auth-bar { width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 50px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255,182,193,0.3); }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-photo { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ff80ab; }
-        .login-btn, .logout-btn { padding: 8px 20px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .login-btn { background: #ff80ab; color: white; }
-        .logout-btn { background: #eee; color: #888; font-size: 11px; }
-
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 10px 25px; border: none; border-radius: 15px; background: white; cursor: pointer; color: #f06292; font-weight: bold; }
-        .tab-btn.active { background: #f06292; color: white; }
-
-        .content-section { width: 100%; max-width: 500px; display: none; }
-        .content-section.active { display: block; }
-
-        .dm-container { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .user-list { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #fff1f1; }
-        .user-item { text-align: center; cursor: pointer; min-width: 70px; }
-        .user-item img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid transparent; padding: 2px; }
-        .user-item.selected img { border-color: #ff80ab; }
-        .user-item p { font-size: 10px; margin-top: 5px; color: #f06292; font-weight: bold; }
-
-        .chat-box { height: 300px; overflow-y: auto; background: #fff9fb; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; word-wrap: break-word; }
-        .msg.sent { align-self: flex-end; background: #ff80ab; color: white; border-bottom-right-radius: 2px; }
-        .msg.received { align-self: flex-start; background: #fce4ec; color: #5d4037; border-bottom-left-radius: 2px; }
-
-        .msg-input-area { display: flex; gap: 10px; }
-        .msg-input-area input { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid #fff1f1; outline: none; }
-        .send-btn { background: #ff80ab; border: none; color: white; width: 45px; border-radius: 10px; cursor: pointer; }
-
-        .post { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
-        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-        .post-comment { background: #fff9fb; padding: 12px; border-radius: 12px; font-size: 14px; margin: 10px 0; }
-        .post-img { width: 100%; border-radius: 15px; margin-top: 10px; }
-        .like-btn { border: none; background: #fff1f1; color: #f06292; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-        .form-box { background: white; padding: 25px; border-radius: 20px; margin-bottom: 25px; width: 100%; }
-        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 2px solid #fff1f1; }
-        .submit-btn { width: 100%; padding: 15px; background: #f06292; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-bottom: 20px; }
+        h3 { margin-top: 0; color: #333; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; transition: 0.3s; }
+        .btn-study { background: #27ae60; } .btn-coffee { background: #f1c40f; color: #333; }
+        .btn-game { background: #2980b9; } .btn-home { background: #7f8c8d; }
+        button:hover { opacity: 0.8; }
+        .user-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; }
     </style>
 </head>
 <body>
 
-    <div class="auth-bar">
-        <div id="userInfo" style="display:none;" class="user-info">
-            <img id="userPhoto" class="user-photo">
-            <span id="userName"></span>
-            <button class="logout-btn" id="logoutBtn">Выйти</button>
+    <div class="card">
+        <h3>Мой профиль</h3>
+        <p id="myInfo">Загрузка...</p>
+        <div class="btn-grid">
+            <button class="btn-study" onclick="changeStatus('Учусь', '#27ae60')">📚 Учусь</button>
+            <button class="btn-coffee" onclick="changeStatus('Кофе-брейк', '#f1c40f')">☕ Кофе</button>
+            <button class="btn-game" onclick="changeStatus('В игре', '#2980b9')">🎮 В игре</button>
+            <button class="btn-home" onclick="changeStatus('Дома', '#7f8c8d')">🏠 Дома</button>
         </div>
-        <button class="login-btn" id="loginBtn">Войти через Google</button>
-        <div id="onlineStatus" style="font-size: 12px; color: #ff80ab;">• Online: 1</div>
     </div>
 
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('feedTab')">Лента</button>
-        <button class="tab-btn" onclick="switchTab('dmTab')">Сообщения (DM)</button>
-    </div>
-
-    <div id="feedTab" class="content-section active">
-        <div class="form-box" id="postForm" style="display:none;">
-            <input type="text" id="userComment" placeholder="Что у вас нового?">
-            <input type="text" id="postImage" placeholder="Ссылка на фото (URL)">
-            <button class="submit-btn" id="sendPostBtn">Опубликовать</button>
-        </div>
-        <div id="feed"></div>
-    </div>
-
-    <div id="dmTab" class="content-section">
-        <div class="dm-container">
-            <div id="userList" class="user-list"></div>
-            <div id="chatWindow" style="display:none;">
-                <h4 id="chatWithTitle" style="margin-bottom:10px; color:#f06292; font-size:14px;">Чат с: ...</h4>
-                <div class="chat-box" id="chatBox"></div>
-                <div class="msg-input-area">
-                    <input type="text" id="msgInput" placeholder="Введите сообщение...">
-                    <button class="send-btn" id="sendMsgBtn">➤</button>
-                </div>
-            </div>
-            <p id="noSelectMsg" style="text-align:center; color:#ccc; padding:20px;">Выберите собеседника выше</p>
-        </div>
+    <div class="card">
+        <h3>Монитор группы</h3>
+        <div id="groupList"></div>
     </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // 1. ВСТАВЬТЕ СВОИ ДАННЫЕ СЮДА
-        const URL = 'https://aecurveycefurzgkloaq.supabase.co'; // Возьмите в Settings -> API
+        // --- НАСТРОЙКИ (ВСТАВЬ СВОИ ДАННЫЕ) ---
+       const URL = 'https://aecurveycefurzgkloaq.supabase.co'; // Возьмите в Settings -> API
+
         const KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';    // Возьмите в Settings -> API
+
         const MY_ID = '2fbb78d2-31ca-4e32-b3c7-21d004ccc99e'; // Ваш ID, который вы копировали
 
         const supabase = createClient(URL, KEY)
 
-        // Функция переключения вкладок
-        window.switchTab = (id) => {
-            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            event.currentTarget.classList.add('active');
-        };
-
-        // Функция изменения вашего статуса
-        async function changeStatus(text, color) {
+        // Функция обновления статуса
+        window.changeStatus = async (text, color) => {
             const { error } = await supabase
                 .from('Ramina')
-                .update({ status: text, color: color }) // Убедитесь, что колонка color есть в таблице
+                .update({ status: text, avatar_url: color }) // Используем avatar_url как цвет (как в твоей таблице)
                 .eq('id', MY_ID)
-
-            if (error) {
-                console.error("Ошибка обновления:", error);
-                alert("Ошибка! Проверьте RLS политики.");
-            } else {
-                fetchGroup();
-            }
+            
+            if (error) console.error(error);
+            else fetchGroup();
         }
 
-        // Привязываем функции к кнопкам (названия кнопок из вашего интерфейса)
-        // Если у вас другие ID кнопок, подправьте их
-        document.getElementById("sendPostBtn").onclick = () => {
-            const comment = document.getElementById("userComment").value;
-            changeStatus(comment, '#ff80ab');
-        };
-
-        // Функция получения данных всех пользователей
+        // Функция загрузки списка
         async function fetchGroup() {
             const { data, error } = await supabase
                 .from('Ramina')
                 .select('*')
                 .order('username', { ascending: true });
 
-            if (error) return console.error(error);
+            if (error) return;
 
-            const feed = document.getElementById("feed");
-            feed.innerHTML = "";
-            data.forEach(user => {
-                feed.innerHTML += `
-                    <div class="post">
-                        <div class="post-header">
-                            <div style="width:10px; height:10px; border-radius:50%; background:${user.color || '#ccc'}"></div>
-                            <span style="font-weight:bold; color:#f06292;">${user.username}</span>
-                        </div>
-                        <div class="post-comment">${user.status || "Нет статуса"}</div>
+            // Отображаем список
+            const list = document.getElementById('groupList');
+            list.innerHTML = data.map(user => `
+                <div class="user-item">
+                    <div class="status-dot" style="background: ${user.avatar_url || '#ccc'}"></div>
+                    <div>
+                        <strong>${user.username}</strong><br>
+                        <small style="color: #666">${user.status || 'Нет статуса'}</small>
                     </div>
-                `;
-            });
+                </div>
+            `).join('');
+
+            // Приветствие
+            const me = data.find(u => u.id === MY_ID);
+            if (me) document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
         }
 
-        // Запускаем обновление каждые 5 секунд
         fetchGroup();
-        setInterval(fetchGroup, 5000);
+        setInterval(fetchGroup, 5000); // Обновлять каждые 5 секунд
     </script>
 </body>
 </html>
