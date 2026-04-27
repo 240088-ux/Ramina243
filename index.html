@@ -60,7 +60,7 @@
         // Функция загрузки списка
         async function fetchGroup() {
             const { data, error } = await supabase
-                .from('Ramina')
+                .from('profiles')
                 .select('*')
                 .order('username', { ascending: true });
 
