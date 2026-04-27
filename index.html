@@ -3,24 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Монитор статусов</title>
+    <title>Монитор статусов ✨</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .container { width: 100%; max-width: 500px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        .my-profile { background: #fafafa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #eee; }
-        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        button { padding: 10px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; transition: opacity 0.2s; }
-        button:hover { opacity: 0.8; }
-        .btn-study { background: #27ae60; }
-        .btn-coffee { background: #f1c40f; color: #333; }
-        .btn-game { background: #2980b9; }
-        .btn-home { background: #7f8c8d; }
+        /* Нежно-розовая цветовая палитра */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #fff0f5; /* Лавандово-розовый фон */
+            display: flex; 
+            justify-content: center; 
+            padding: 20px; 
+            color: #5d4a4a;
+        }
         
-        .user-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 15px; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-        .user-info b { display: block; color: #2c3e50; }
-        .user-info span { font-size: 0.9em; color: #7f8c8d; }
+        .container { 
+            width: 100%; 
+            max-width: 450px; 
+            background: #ffffff; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 10px 25px rgba(255, 182, 193, 0.4); 
+        }
+
+        h2 { text-align: center; color: #ff8da1; font-weight: 600; margin-bottom: 20px; }
+
+        .my-profile { 
+            background: #fff5f7; 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin-bottom: 25px; 
+            border: 1px dashed #ffc0cb; 
+            text-align: center;
+        }
+
+        #myInfo { font-weight: bold; color: #d87093; margin-bottom: 15px; }
+
+        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        /* Кнопки в стиле "Soft Pink" */
+        button { 
+            padding: 12px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            color: white; 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255, 105, 180, 0.3); opacity: 0.9; }
+
+        .btn-study { background: #ffb6c1; } /* Светло-розовый */
+        .btn-coffee { background: #fbc4ab; } /* Персиковый */
+        .btn-game { background: #c1bdff; }  /* Нежно-сиреневый */
+        .btn-home { background: #e2e2e2; color: #666; }
+        
+        hr { border: 0; height: 1px; background: #ffe4e1; margin: 20px 0; }
+
+        .user-item { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px; 
+            background: #fffafa;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+
+        .user-item:hover { background: #fff0f3; }
+
+        .status-dot { 
+            width: 14px; 
+            height: 14px; 
+            border-radius: 50%; 
+            margin-right: 15px; 
+            border: 2px solid white; 
+            box-shadow: 0 0 8px rgba(0,0,0,0.1); 
+        }
+
+        .user-info b { display: block; color: #8b5a6d; font-size: 1.05em; }
+        .user-info span { font-size: 0.85em; color: #a9a9a9; }
     </style>
 </head>
 <body>
@@ -30,10 +92,10 @@
     <div class="my-profile">
         <p id="myInfo">Загрузка профиля...</p>
         <div class="buttons">
-            <button class="btn-study" onclick="changeStatus('📚 Учусь', '#27ae60')">📚 Учусь</button>
-            <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
-            <button class="btn-game" onclick="changeStatus('🎮 В игре', '#2980b9')">🎮 В игре</button>
-            <button class="btn-home" onclick="changeStatus('🏠 Дома', '#7f8c8d')">🏠 Дома</button>
+            <button class="btn-study" onclick="changeStatus('📚 Учусь', '#ffb6c1')">📚 Учусь</button>
+            <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#fbc4ab')">☕ Кофе</button>
+            <button class="btn-game" onclick="changeStatus('🎮 В игре', '#c1bdff')">🎮 В игре</button>
+            <button class="btn-home" onclick="changeStatus('🏠 Дома', '#e2e2e2')">🏠 Дома</button>
         </div>
     </div>
 
@@ -46,48 +108,38 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-    // 1. Сначала объявляем константы (проверьте, что они не дублируются выше)
     const SUPABASE_URL = 'https://aecurveycefurzgkloaq.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
     const MY_USER_ID = '117f40da-c90e-4a98-9289-9bdd20e4c855';
 
-    // 2. Инициализируем клиент (только один раз!)
-    // Используем window.supabase, чтобы избежать конфликта имен
     const sb_client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // 3. Функция смены статуса
     async function changeStatus(statusText, statusColor) {
-        console.log("Меняем статус на:", statusText);
         const { error } = await sb_client
             .from('profiles')
             .update({ status: statusText, color: statusColor })
             .eq('id', MY_USER_ID);
 
         if (error) {
-            console.error("Ошибка обновления:", error);
-            alert("Ошибка при обновлении статуса!");
+            console.error("Ошибка:", error);
         } else {
             fetchGroup();
         }
     }
 
-    // 4. Функция загрузки данных группы
     async function fetchGroup() {
         const { data, error } = await sb_client
             .from('profiles')
             .select('*')
             .order('username', { ascending: true });
 
-        if (error) {
-            console.error("Ошибка загрузки данных:", error);
-            return;
-        }
+        if (error) return;
 
         const listContainer = document.getElementById('groupList');
         if (listContainer) {
             listContainer.innerHTML = data.map(user => `
                 <div class="user-item">
-                    <div class="status-dot" style="background: ${user.color || '#ccc'}"></div>
+                    <div class="status-dot" style="background: ${user.color || '#ffc0cb'}"></div>
                     <div class="user-info">
                         <b>${user.username}</b>
                         <span>${user.status || 'Статус не задан'}</span>
@@ -97,12 +149,11 @@
         }
 
         const me = data.find(u => u.id === MY_USER_ID);
-        if (me && document.getElementById('myInfo')) {
-            document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
+        if (me) {
+            document.getElementById('myInfo').innerText = `Привет, ${me.username}! ✨`;
         }
     }
 
-    // Запускаем загрузку
     fetchGroup();
     setInterval(fetchGroup, 5000);
 </script>
