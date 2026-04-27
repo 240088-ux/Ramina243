@@ -50,8 +50,14 @@
     const KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
     const MY_ID = '117f40da-c90e-4a98-9289-9bdd20e4c855';
 
-    const supabase = supabase.createClient(URL, KEY);
+    // ВОТ ОДНО ОБЪЯВЛЕНИЕ (оставьте его)
+    const supabase = supabase.createClient(URL, KEY); 
 
+    // ... возможно, ниже вы случайно вставили это еще раз ...
+
+    // ВОТ ВТОРОЕ ЛИШНЕЕ ОБЪЯВЛЕНИЕ (удалите его целиком!)
+    const supabase = supabase.createClient(URL, KEY); // <--- УДАЛИТЬ ЭТУ СТРОКУ
+    
     // Функция смены статуса
     async function changeStatus(text, color) {
         const { error } = await supabase
