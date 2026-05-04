@@ -8,7 +8,7 @@
         /* Нежно-розовая цветовая палитра */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #fff0f5; /* Лавандово-розовый фон */
+            background: #fff0f5; 
             display: flex; 
             justify-content: center; 
             padding: 20px; 
@@ -37,9 +37,8 @@
 
         #myInfo { font-weight: bold; color: #d87093; margin-bottom: 15px; }
 
-        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
         
-        /* Кнопки в стиле "Soft Pink" */
         button { 
             padding: 12px; 
             border: none; 
@@ -53,9 +52,10 @@
 
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255, 105, 180, 0.3); opacity: 0.9; }
 
-        .btn-study { background: #ffb6c1; } /* Светло-розовый */
-        .btn-coffee { background: #fbc4ab; } /* Персиковый */
-        .btn-game { background: #c1bdff; }  /* Нежно-сиреневый */
+        .btn-google { background: #4285F4; width: 100%; margin-top: 10px; }
+        .btn-study { background: #ffb6c1; } 
+        .btn-coffee { background: #fbc4ab; } 
+        .btn-game { background: #c1bdff; }  
         .btn-home { background: #e2e2e2; color: #666; }
         
         hr { border: 0; height: 1px; background: #ffe4e1; margin: 20px 0; }
@@ -67,10 +67,7 @@
             background: #fffafa;
             border-radius: 15px;
             margin-bottom: 10px;
-            transition: 0.3s;
         }
-
-        .user-item:hover { background: #fff0f3; }
 
         .status-dot { 
             width: 14px; 
@@ -90,19 +87,24 @@
 <div class="container">
     <h2>Мой профиль</h2>
     <div class="my-profile">
-        <p id="myInfo">Загрузка профиля...</p>
-        <div class="buttons">
-            <button class="btn-study" onclick="changeStatus('📚 Учусь', '#ffb6c1')">📚 Учусь</button>
-            <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#fbc4ab')">☕ Кофе</button>
-            <button class="btn-game" onclick="changeStatus('🎮 В игре', '#c1bdff')">🎮 В игре</button>
-            <button class="btn-home" onclick="changeStatus('🏠 Дома', '#e2e2e2')">🏠 Дома</button>
+        <div id="auth-box">
+            <p id="myInfo">Проверка авторизации...</p>
+            </div>
+        
+        <div id="status-box" style="display: none;">
+            <div class="buttons">
+                <button class="btn-study" onclick="changeStatus('📚 Учусь', '#ffb6c1')">📚 Учусь</button>
+                <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#fbc4ab')">☕ Кофе</button>
+                <button class="btn-game" onclick="changeStatus('🎮 В игре', '#c1bdff')">🎮 В игре</button>
+                <button class="btn-home" onclick="changeStatus('🏠 Дома', '#e2e2e2')">🏠 Дома</button>
+            </div>
+            <p><a href="#" onclick="logout()" style="color: #d87093; font-size: 12px;">Выйти из аккаунта</a></p>
         </div>
     </div>
 
     <hr>
     <h2>Монитор группы</h2>
-    <div id="groupList">
-        </div>
+    <div id="groupList"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -110,47 +112,69 @@
 <script>
     const SUPABASE_URL = 'https://aecurveycefurzgkloaq.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
-    const MY_USER_ID = '117f40da-c90e-4a98-9289-9bdd20e4c855';
-
     const sb_client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function changeStatus(statusText, statusColor) {
-        const { error } = await sb_client
-            .from('profiles')
-            .update({ status: statusText, color: statusColor })
-            .eq('id', MY_USER_ID);
-
-        if (error) {
-            console.error("Ошибка:", error);
-        } else {
-            fetchGroup();
-        }
+    // Функция входа
+    async function login() {
+        const { error } = await sb_client.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin }
+        });
+        if (error) alert("Ошибка входа: " + error.message);
     }
 
-    async function fetchGroup() {
-        const { data, error } = await sb_client
-            .from('profiles')
-            .select('*')
-            .order('username', { ascending: true });
+    // Функция выхода
+    async function logout() {
+        await sb_client.auth.signOut();
+        window.location.reload();
+    }
 
+    // Изменение статуса
+    async function changeStatus(statusText, statusColor) {
+        const { data: { user } } = await sb_client.auth.getUser();
+        if (!user) return alert("Сначала войдите!");
+
+        const { error } = await sb_client
+            .from('profiles')
+            .upsert({ 
+                id: user.id, 
+                username: user.user_metadata.full_name, 
+                status: statusText, 
+                color: statusColor 
+            });
+
+        if (error) console.error("Ошибка:", error);
+        fetchGroup();
+    }
+
+    // Загрузка списка группы
+    async function fetchGroup() {
+        const { data, error } = await sb_client.from('profiles').select('*').order('username');
         if (error) return;
 
         const listContainer = document.getElementById('groupList');
-        if (listContainer) {
-            listContainer.innerHTML = data.map(user => `
-                <div class="user-item">
-                    <div class="status-dot" style="background: ${user.color || '#ffc0cb'}"></div>
-                    <div class="user-info">
-                        <b>${user.username}</b>
-                        <span>${user.status || 'Статус не задан'}</span>
-                    </div>
+        listContainer.innerHTML = data.map(user => `
+            <div class="user-item">
+                <div class="status-dot" style="background: ${user.color || '#ffc0cb'}"></div>
+                <div class="user-info">
+                    <b>${user.username || 'Аноним'}</b>
+                    <span>${user.status || 'Нет статуса'}</span>
                 </div>
-            `).join('');
-        }
+            </div>
+        `).join('');
 
-        const me = data.find(u => u.id === MY_USER_ID);
-        if (me) {
-            document.getElementById('myInfo').innerText = `Привет, ${me.username}! ✨`;
+        // Проверка авторизации для отображения интерфейса
+        const { data: { user } } = await sb_client.auth.getUser();
+        const infoPara = document.getElementById('myInfo');
+        const statusBox = document.getElementById('status-box');
+
+        if (user) {
+            infoPara.innerText = `Привет, ${user.user_metadata.full_name}! ✨`;
+            statusBox.style.display = 'block';
+        } else {
+            infoPara.innerHTML = `Войдите, чтобы ставить статусы:<br>
+                <button class="btn-google" onclick="login()">🔵 Войти через Google</button>`;
+            statusBox.style.display = 'none';
         }
     }
 
