@@ -88,8 +88,8 @@
     <h2>Мой профиль</h2>
     <div class="my-profile">
         <div id="auth-box">
-            <p id="myInfo">Проверка авторизации...</p>
-            </div>
+            <p id="myInfo">Загрузка...</p>
+        </div>
         
         <div id="status-box" style="display: none;">
             <div class="buttons">
@@ -114,43 +114,49 @@
     const SUPABASE_KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
     const sb_client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Функция входа
     async function login() {
         const { error } = await sb_client.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.origin }
+            options: { redirectTo: window.location.href } // Исправлено на href
         });
         if (error) alert("Ошибка входа: " + error.message);
     }
 
-    // Функция выхода
     async function logout() {
         await sb_client.auth.signOut();
         window.location.reload();
     }
 
-    // Изменение статуса
     async function changeStatus(statusText, statusColor) {
         const { data: { user } } = await sb_client.auth.getUser();
         if (!user) return alert("Сначала войдите!");
+
+        // Используем имя из профиля или email как запасной вариант
+        const name = user.user_metadata.full_name || user.email.split('@')[0];
 
         const { error } = await sb_client
             .from('profiles')
             .upsert({ 
                 id: user.id, 
-                username: user.user_metadata.full_name, 
+                username: name, 
                 status: statusText, 
                 color: statusColor 
             });
 
-        if (error) console.error("Ошибка:", error);
-        fetchGroup();
+        if (error) {
+            console.error("Ошибка обновления:", error);
+            alert("Ошибка базы: " + error.message);
+        } else {
+            fetchGroup();
+        }
     }
 
-    // Загрузка списка группы
     async function fetchGroup() {
         const { data, error } = await sb_client.from('profiles').select('*').order('username');
-        if (error) return;
+        if (error) {
+            console.error("Ошибка загрузки:", error);
+            return;
+        }
 
         const listContainer = document.getElementById('groupList');
         listContainer.innerHTML = data.map(user => `
@@ -163,13 +169,13 @@
             </div>
         `).join('');
 
-        // Проверка авторизации для отображения интерфейса
         const { data: { user } } = await sb_client.auth.getUser();
         const infoPara = document.getElementById('myInfo');
         const statusBox = document.getElementById('status-box');
 
         if (user) {
-            infoPara.innerText = `Привет, ${user.user_metadata.full_name}! ✨`;
+            const displayName = user.user_metadata.full_name || user.email.split('@')[0];
+            infoPara.innerText = `Привет, ${displayName}! ✨`;
             statusBox.style.display = 'block';
         } else {
             infoPara.innerHTML = `Войдите, чтобы ставить статусы:<br>
@@ -178,7 +184,9 @@
         }
     }
 
+    // Запускаем проверку при загрузке
     fetchGroup();
+    // Обновляем список каждые 5 секунд
     setInterval(fetchGroup, 5000);
 </script>
 
