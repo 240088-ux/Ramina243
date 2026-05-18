@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Монитор статусов ✨</title>
     <style>
-        /* Нежно-розовая цветовая палитра */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: #fff0f5; 
@@ -67,6 +66,7 @@
             background: #fffafa;
             border-radius: 15px;
             margin-bottom: 10px;
+            position: relative;
         }
 
         .status-dot { 
@@ -76,10 +76,34 @@
             margin-right: 15px; 
             border: 2px solid white; 
             box-shadow: 0 0 8px rgba(0,0,0,0.1); 
+            position: relative;
+        }
+
+        /* Маленькая зеленая точка онлайн */
+        .online-badge {
+            width: 8px;
+            height: 8px;
+            background: #2ecc71;
+            border-radius: 50%;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            border: 1px solid white;
         }
 
         .user-info b { display: block; color: #8b5a6d; font-size: 1.05em; }
         .user-info span { font-size: 0.85em; color: #a9a9a9; }
+        
+        /* Стиль для таймера */
+        .time-badge {
+            margin-left: auto;
+            font-size: 0.85em;
+            background: #ffe4e1;
+            padding: 4px 8px;
+            border-radius: 10px;
+            color: #d87093;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +122,7 @@
                 <button class="btn-game" onclick="changeStatus('🎮 В игре', '#c1bdff')">🎮 В игре</button>
                 <button class="btn-home" onclick="changeStatus('🏠 Дома', '#e2e2e2')">🏠 Дома</button>
             </div>
+            <p id="myStudyTime" style="font-size: 13px; margin: 10px 0; color: #8b5a6d;"></p>
             <p><a href="#" onclick="logout()" style="color: #d87093; font-size: 12px;">Выйти из аккаунта</a></p>
         </div>
     </div>
@@ -114,10 +139,12 @@
     const SUPABASE_KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
     const sb_client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    let currentStatus = ""; 
+
     async function login() {
         const { error } = await sb_client.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.href } // Исправлено на href
+            options: { redirectTo: window.location.href }
         });
         if (error) alert("Ошибка входа: " + error.message);
     }
@@ -127,11 +154,19 @@
         window.location.reload();
     }
 
+    // Вспомогательная функция перевода секунд в красивый формат (ЧЧ:ММ:СС)
+    function formatTime(seconds) {
+        const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+        const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${h}:${m}:${s}`;
+    }
+
     async function changeStatus(statusText, statusColor) {
         const { data: { user } } = await sb_client.auth.getUser();
         if (!user) return alert("Сначала войдите!");
 
-        // Используем имя из профиля или email как запасной вариант
+        currentStatus = statusText; 
         const name = user.user_metadata.full_name || user.email.split('@')[0];
 
         const { error } = await sb_client
@@ -140,34 +175,39 @@
                 id: user.id, 
                 username: name, 
                 status: statusText, 
-                color: statusColor 
+                color: statusColor,
+                last_seen: new Date().toISOString() // Обновляем время активности
             });
 
-        if (error) {
-            console.error("Ошибка обновления:", error);
-            alert("Ошибка базы: " + error.message);
-        } else {
-            fetchGroup();
-        }
+        if (error) console.error(error);
+        fetchGroup();
     }
 
     async function fetchGroup() {
         const { data, error } = await sb_client.from('profiles').select('*').order('username');
-        if (error) {
-            console.error("Ошибка загрузки:", error);
-            return;
-        }
+        if (error) return;
 
         const listContainer = document.getElementById('groupList');
-        listContainer.innerHTML = data.map(user => `
-            <div class="user-item">
-                <div class="status-dot" style="background: ${user.color || '#ffc0cb'}"></div>
-                <div class="user-info">
-                    <b>${user.username || 'Аноним'}</b>
-                    <span>${user.status || 'Нет статуса'}</span>
+        const now = new Date();
+
+        listContainer.innerHTML = data.map(user => {
+            // Считаем онлайн: если разница времени меньше 30 секунд — он онлайн
+            const lastSeenDate = new Date(user.last_seen);
+            const isOnline = (now - lastSeenDate) < 30000; 
+
+            return `
+                <div class="user-item">
+                    <div class="status-dot" style="background: ${user.color || '#ffc0cb'}">
+                        ${isOnline ? '<div class="online-badge"></div>' : ''}
+                    </div>
+                    <div class="user-info">
+                        <b>${user.username || 'Аноним'}</b>
+                        <span>${user.status || 'Нет статуса'}</span>
+                    </div>
+                    <div class="time-badge">⏱️ ${formatTime(user.study_time || 0)}</div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         const { data: { user } } = await sb_client.auth.getUser();
         const infoPara = document.getElementById('myInfo');
@@ -177,6 +217,13 @@
             const displayName = user.user_metadata.full_name || user.email.split('@')[0];
             infoPara.innerText = `Привет, ${displayName}! ✨`;
             statusBox.style.display = 'block';
+
+            // Ищем данные текущего пользователя в списке, чтобы показать его таймер
+            const currentUserData = data.find(u => u.id === user.id);
+            if (currentUserData) {
+                currentStatus = currentUserData.status;
+                document.getElementById('myStudyTime').innerText = `Время вашей учебы: ${formatTime(currentUserData.study_time || 0)}`;
+            }
         } else {
             infoPara.innerHTML = `Войдите, чтобы ставить статусы:<br>
                 <button class="btn-google" onclick="login()">🔵 Войти через Google</button>`;
@@ -184,10 +231,26 @@
         }
     }
 
-    // Запускаем проверку при загрузке
+    // ТАЙМЕР И ОБНОВЛЕНИЕ АКТИВНОСТИ
+    setInterval(async () => {
+        const { data: { user } } = await sb_client.auth.getUser();
+        if (!user) return;
+
+        // 1. Каждые 5 секунд обновляем ласт син (чтобы быть онлайн)
+        await sb_client.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', user.id);
+
+        // 2. Если выбран статус учебы — накидываем по 5 секунд в базу данных
+        if (currentStatus === '📚 Учусь') {
+            // Получаем текущее время учебы из базы
+            const { data: currentProfile } = await sb_client.from('profiles').select('study_time').eq('id', user.id).single();
+            let newTime = (currentProfile?.study_time || 0) + 5;
+            
+            await sb_client.from('profiles').update({ study_time: newTime }).eq('id', user.id);
+        }
+    }, 5000);
+
     fetchGroup();
-    // Обновляем список каждые 5 секунд
-    setInterval(fetchGroup, 5000);
+    setInterval(fetchGroup, 5000); // Обновляем список группы каждые 5 сек
 </script>
 
 </body>
