@@ -23,7 +23,8 @@
             box-shadow: 0 10px 25px rgba(255, 182, 193, 0.4); 
         }
 
-        h2 { text-align: center; color: #ff8da1; font-weight: 600; margin-bottom: 20px; }
+        h2 { text-align: center; color: #ff8da1; font-weight: 600; margin: 20px 0 10px 0; }
+        h2:first-child { margin-top: 0; }
 
         .my-profile { 
             background: #fff5f7; 
@@ -49,13 +50,16 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255, 105, 180, 0.3); opacity: 0.9; }
+        button:hover { transform: translateY(-2px); opacity: 0.9; }
 
         .btn-google { background: #4285F4; width: 100%; margin-top: 10px; }
-        .btn-study { background: #ffb6c1; } 
         .btn-coffee { background: #fbc4ab; } 
         .btn-game { background: #c1bdff; }  
         .btn-home { background: #e2e2e2; color: #666; }
+
+        /* Новые кнопки для сессии учебы */
+        .btn-session-start { background: #2ecc71; grid-column: span 2; margin-top: 10px; font-size: 1.1em; }
+        .btn-session-stop { background: #e74c3c; grid-column: span 2; margin-top: 10px; font-size: 1.1em; }
         
         hr { border: 0; height: 1px; background: #ffe4e1; margin: 20px 0; }
 
@@ -79,7 +83,6 @@
             position: relative;
         }
 
-        /* Маленькая зеленая точка онлайн */
         .online-badge {
             width: 8px;
             height: 8px;
@@ -94,7 +97,6 @@
         .user-info b { display: block; color: #8b5a6d; font-size: 1.05em; }
         .user-info span { font-size: 0.85em; color: #a9a9a9; }
         
-        /* Стиль для таймера */
         .time-badge {
             margin-left: auto;
             font-size: 0.85em;
@@ -104,6 +106,38 @@
             color: #d87093;
             font-weight: bold;
         }
+
+        /* Стили чата */
+        .chat-box {
+            background: #fffafa;
+            border: 1px solid #ffe4e1;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .chat-messages {
+            height: 150px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ffe4e1;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        .chat-msg { margin-bottom: 6px; line-height: 1.4; }
+        .chat-msg b { color: #d87093; }
+
+        .chat-input-row { display: flex; gap: 8px; }
+        .chat-input-row input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ffc0cb;
+            border-radius: 10px;
+            outline: none;
+        }
+        .btn-send { background: #ff8da1; padding: 10px 15px; }
     </style>
 </head>
 <body>
@@ -116,30 +150,43 @@
         </div>
         
         <div id="status-box" style="display: none;">
+            <p id="myStudyTime" style="font-size: 16px; font-weight: bold; margin: 10px 0; color: #ff8da1;"></p>
+            
             <div class="buttons">
-                <button class="btn-study" onclick="changeStatus('📚 Учусь', '#ffb6c1')">📚 Учусь</button>
+                <button id="sessionBtn" class="btn-session-start" onclick="toggleStudySession()">▶ Начать учебу</button>
+
                 <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#fbc4ab')">☕ Кофе</button>
                 <button class="btn-game" onclick="changeStatus('🎮 В игре', '#c1bdff')">🎮 В игре</button>
                 <button class="btn-home" onclick="changeStatus('🏠 Дома', '#e2e2e2')">🏠 Дома</button>
             </div>
-            <p id="myStudyTime" style="font-size: 13px; margin: 10px 0; color: #8b5a6d;"></p>
-            <p><a href="#" onclick="logout()" style="color: #d87093; font-size: 12px;">Выйти из аккаунта</a></p>
+            <p style="margin-top: 15px;"><a href="#" onclick="logout()" style="color: #d87093; font-size: 12px;">Выйти из аккаунта</a></p>
         </div>
     </div>
 
-    <hr>
     <h2>Монитор группы</h2>
     <div id="groupList"></div>
+
+    <hr>
+    <h2>Общий чат</h2>
+    <div class="chat-box">
+        <div id="chatMessages" class="chat-messages"></div>
+        <div id="chatInputArea" class="chat-input-row" style="display: none;">
+            <input type="text" id="msgInput" placeholder="Сообщение..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+            <button class="btn-send" onclick="sendChatMessage()">➔</button>
+        </div>
+        <p id="chatGuestNotice" style="font-size: 12px; color: #a9a9a9; text-align: center;">Войдите, чтобы писать в чат</p>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+    // Твои настройки Supabase (Оставляем прежними, они верные)
     const SUPABASE_URL = 'https://aecurveycefurzgkloaq.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_1N6vKLVRSpJeWya6w7Aaig_-w5RA8yY';
     const sb_client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let currentStatus = ""; 
+    let isStudying = false; // Флаг: учится ли пользователь прямо сейчас
 
     async function login() {
         const { error } = await sb_client.auth.signInWithOAuth({
@@ -154,7 +201,6 @@
         window.location.reload();
     }
 
-    // Вспомогательная функция перевода секунд в красивый формат (ЧЧ:ММ:СС)
     function formatTime(seconds) {
         const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
         const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
@@ -162,24 +208,50 @@
         return `${h}:${m}:${s}`;
     }
 
-    async function changeStatus(statusText, statusColor) {
+    // Переключение сессии Учебы
+    async function toggleStudySession() {
         const { data: { user } } = await sb_client.auth.getUser();
         if (!user) return alert("Сначала войдите!");
 
-        currentStatus = statusText; 
+        const btn = document.getElementById('sessionBtn');
+        
+        if (!isStudying) {
+            // Начинаем учебу
+            isStudying = true;
+            btn.innerText = "⏹ Завершить сессию";
+            btn.className = "btn-session-stop";
+            await changeStatus('📚 Учусь', '#ffb6c1');
+        } else {
+            // Завершаем учебу
+            isStudying = false;
+            btn.innerText = "▶ Начать учебу";
+            btn.className = "btn-session-start";
+            await changeStatus('🏠 Дома', '#e2e2e2');
+        }
+    }
+
+    async function changeStatus(statusText, statusColor) {
+        const { data: { user } } = await sb_client.auth.getUser();
+        if (!user) return;
+
+        // Если принудительно переключили статус кнопками "Кофе/В игре/Дома", выключаем сессию учебы
+        if (statusText !== '📚 Учусь' && isStudying) {
+            isStudying = false;
+            const btn = document.getElementById('sessionBtn');
+            btn.innerText = "▶ Начать учебу";
+            btn.className = "btn-session-start";
+        }
+
         const name = user.user_metadata.full_name || user.email.split('@')[0];
 
-        const { error } = await sb_client
-            .from('profiles')
-            .upsert({ 
-                id: user.id, 
-                username: name, 
-                status: statusText, 
-                color: statusColor,
-                last_seen: new Date().toISOString() // Обновляем время активности
-            });
+        await sb_client.from('profiles').upsert({ 
+            id: user.id, 
+            username: name, 
+            status: statusText, 
+            color: statusColor,
+            last_seen: new Date().toISOString()
+        });
 
-        if (error) console.error(error);
         fetchGroup();
     }
 
@@ -191,7 +263,6 @@
         const now = new Date();
 
         listContainer.innerHTML = data.map(user => {
-            // Считаем онлайн: если разница времени меньше 30 секунд — он онлайн
             const lastSeenDate = new Date(user.last_seen);
             const isOnline = (now - lastSeenDate) < 30000; 
 
@@ -210,47 +281,90 @@
         }).join('');
 
         const { data: { user } } = await sb_client.auth.getUser();
-        const infoPara = document.getElementById('myInfo');
-        const statusBox = document.getElementById('status-box');
-
         if (user) {
             const displayName = user.user_metadata.full_name || user.email.split('@')[0];
-            infoPara.innerText = `Привет, ${displayName}! ✨`;
-            statusBox.style.display = 'block';
+            document.getElementById('myInfo').innerText = `Привет, ${displayName}! ✨`;
+            document.getElementById('status-box').style.display = 'block';
+            document.getElementById('chatInputArea').style.display = 'flex';
+            document.getElementById('chatGuestNotice').style.display = 'none';
 
-            // Ищем данные текущего пользователя в списке, чтобы показать его таймер
             const currentUserData = data.find(u => u.id === user.id);
             if (currentUserData) {
-                currentStatus = currentUserData.status;
                 document.getElementById('myStudyTime').innerText = `Время вашей учебы: ${formatTime(currentUserData.study_time || 0)}`;
+                
+                // Синхронизируем состояние кнопок при перезагрузке страницы
+                if (currentUserData.status === '📚 Учусь' && !isStudying) {
+                    isStudying = true;
+                    const btn = document.getElementById('sessionBtn');
+                    btn.innerText = "⏹ Завершить сессию";
+                    btn.className = "btn-session-stop";
+                }
             }
         } else {
-            infoPara.innerHTML = `Войдите, чтобы ставить статусы:<br>
+            document.getElementById('myInfo').innerHTML = `Войдите, чтобы ставить статусы:<br>
                 <button class="btn-google" onclick="login()">🔵 Войти через Google</button>`;
-            statusBox.style.display = 'none';
+            document.getElementById('status-box').style.display = 'none';
+            document.getElementById('chatInputArea').style.display = 'none';
+            document.getElementById('chatGuestNotice').style.display = 'block';
         }
     }
 
-    // ТАЙМЕР И ОБНОВЛЕНИЕ АКТИВНОСТИ
+    // ЛОГИКА ЧАТА
+    async function sendChatMessage() {
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const { data: { user } } = await sb_client.auth.getUser();
+        if (!user) return;
+
+        const name = user.user_metadata.full_name || user.email.split('@')[0];
+
+        const { error } = await sb_client.from('chat_messages').insert({
+            user_id: user.id,
+            username: name,
+            message: text
+        });
+
+        if (error) console.error(error);
+        input.value = '';
+        fetchChat();
+    }
+
+    async function fetchChat() {
+        const { data, error } = await sb_client.from('chat_messages').select('*').order('created_at', { ascending: true }).limit(50);
+        if (error) return;
+
+        const chatContainer = document.getElementById('chatMessages');
+        chatContainer.innerHTML = data.map(msg => `
+            <div class="chat-msg"><b>${msg.username}:</b> ${msg.message}</div>
+        `).join('');
+        
+        // Автоматическая прокрутка чата вниз
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // ТАЙМЕРЫ
     setInterval(async () => {
         const { data: { user } } = await sb_client.auth.getUser();
         if (!user) return;
 
-        // 1. Каждые 5 секунд обновляем ласт син (чтобы быть онлайн)
+        // Каждые 5 секунд говорим базе, что мы онлайн
         await sb_client.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', user.id);
 
-        // 2. Если выбран статус учебы — накидываем по 5 секунд в базу данных
-        if (currentStatus === '📚 Учусь') {
-            // Получаем текущее время учебы из базы
+        // Если запущена сессия учебы, прибавляем 5 секунд
+        if (isStudying) {
             const { data: currentProfile } = await sb_client.from('profiles').select('study_time').eq('id', user.id).single();
             let newTime = (currentProfile?.study_time || 0) + 5;
-            
             await sb_client.from('profiles').update({ study_time: newTime }).eq('id', user.id);
         }
     }, 5000);
 
+    // Первичный запуск и циклы обновления экранов
     fetchGroup();
-    setInterval(fetchGroup, 5000); // Обновляем список группы каждые 5 сек
+    fetchChat();
+    setInterval(fetchGroup, 5000);
+    setInterval(fetchChat, 4000); // Чат обновляется чуть чаще
 </script>
 
 </body>
