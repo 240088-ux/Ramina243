@@ -140,8 +140,22 @@
         .btn-send { background: #ff8da1; padding: 10px 15px; }
 
         /* НОВЫЕ СТИЛИ ДЛЯ АЧИВОК И ТОП-ЛИСТА (Добавлены без изменения старых) */
-        .badges-container { display: flex; gap: 4px; margin-top: 4px; }
-        .badge-icon { cursor: help; font-size: 1.1em; }
+        .badges-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        
+        /* КРАСИВЫЙ СТИЛЬ ТЕКСТОВОЙ АЧИВКИ */
+        .badge-tag { 
+            display: inline-flex;
+            align-items: center;
+            background: #fff0f3;
+            border: 1px solid #ffccd5;
+            color: #d87093;
+            font-size: 0.75em;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(255, 182, 193, 0.2);
+        }
+        
         .leaderboard-list { background: #fff5f7; border-radius: 20px; padding: 15px; margin-bottom: 25px; border: 1px dashed #ffc0cb; }
         .leader-item { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px dashed #ffe4e1; font-size: 0.95em; }
         .leader-item:last-child { border-bottom: none; }
@@ -202,19 +216,19 @@
     let isStudying = false; // Флаг: учится ли пользователь прямо сейчас
     let currentSessionStartTime = null; // НОВАЯ ПЕРЕМЕННАЯ: для отслеживания марафона
 
-    // НОВЫЙ МАССИВ: Данные о доступных ачивках
+    // ТЕКСТОВЫЕ НАЗВАНИЯ ДЛЯ ТВОИХ НАГРАД
     const BADGE_DETAILS = {
-        'early': { icon: '🌅', title: 'Ранняя пташка (Учеба начата до 8:00 утра)' },
-        'marathon': { icon: '🏃‍♂️', title: 'Марафонец (Непрерывная учеба более 2 часов)' },
-        'activist': { icon: '💬', title: 'Активист (Написано 20 сообщений в чате)' }
+        'early': { text: '🌅 Ранняя пташка', title: 'Учеба начата до 8:00 утра' },
+        'marathon': { text: '🏃‍♂️ Марафонец', title: 'Непрерывная учеба более 2 часов' },
+        'activist': { text: '💬 Активист', title: 'Написано 20 сообщений в чате' }
     };
 
-    // НОВАЯ ФУНКЦИЯ: Отрисовка значков достижений
+    // ОБНОВЛЕННАЯ ФУНКЦИЯ: Отрисовка наград в виде красивых текстовых плашек
     function renderBadges(badgesArray) {
         if (!badgesArray || badgesArray.length === 0) return '';
         return `<div class="badges-container">` + badgesArray.map(b => {
             const item = BADGE_DETAILS[b];
-            return item ? `<span class="badge-icon" title="${item.title}">${item.icon}</span>` : '';
+            return item ? `<span class="badge-tag" title="${item.title}">${item.text}</span>` : '';
         }).join('') + `</div>`;
     }
 
@@ -349,7 +363,7 @@
             if (currentUserData) {
                 document.getElementById('myStudyTime').innerText = `Время вашей учебы: ${formatTime(currentUserData.study_time || 0)}`;
                 
-                // НОВАЯ ФУНКЦИЯ: Показ личных значков в строке профиля
+                // Отображение личных текстовых значков в твоем профиле
                 document.getElementById('myBadgesRow').innerHTML = "Ваши награды: " + (renderBadges(currentUserData.badges) || 'Пока нет 🐾');
                 
                 // Синхронизируем состояние кнопок при перезагрузке страницы
